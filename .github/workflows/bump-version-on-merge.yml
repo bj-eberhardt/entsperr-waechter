@@ -6,6 +6,7 @@ on:
       - closed
     branches:
       - master
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,8 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  bump-version:
-    if: github.event.pull_request.merged == true
+  bump-version-and-release:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: master
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -65,7 +67,8 @@ jobs:
           Path(".bumped-version-name").write_text(new_version_name, encoding="utf-8")
           PY
 
-      - name: Commit and push changes
+      - name: Commit, tag, and push changes
+        id: release_tag
         shell: bash
         run: |
           VERSION_NAME="$(cat .bumped-version-name)"
@@ -83,3 +86,82 @@ jobs:
           git tag "${TAG_NAME}"
           git push origin HEAD:master
           git push origin "${TAG_NAME}"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Validate release secrets
+        shell: bash
+        run: |
+          for name in UC_STORE_FILE_B64 UC_STORE_PASSWORD UC_KEY_ALIAS UC_KEY_PASSWORD; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required secret: $name" >&2
+              exit 1
+            fi
+          done
+        env:
+          UC_STORE_FILE_B64: ${{ secrets.UC_STORE_FILE_B64 }}
+          UC_STORE_PASSWORD: ${{ secrets.UC_STORE_PASSWORD }}
+          UC_KEY_ALIAS: ${{ secrets.UC_KEY_ALIAS }}
+          UC_KEY_PASSWORD: ${{ secrets.UC_KEY_PASSWORD }}
+
+      - name: Restore keystore from secret
+        shell: bash
+        run: |
+          echo "${UC_STORE_FILE_B64}" | base64 --decode > keystore.jks
+        env:
+          UC_STORE_FILE_B64: ${{ secrets.UC_STORE_FILE_B64 }}
+
+      - name: Create keystore.properties
+        shell: bash
+        run: |
+          cat > keystore.properties <<EOF
+          storeFile=keystore.jks
+          storePassword=${UC_STORE_PASSWORD}
+          keyAlias=${UC_KEY_ALIAS}
+          keyPassword=${UC_KEY_PASSWORD}
+          EOF
+        env:
+          UC_STORE_PASSWORD: ${{ secrets.UC_STORE_PASSWORD }}
+          UC_KEY_ALIAS: ${{ secrets.UC_KEY_ALIAS }}
+          UC_KEY_PASSWORD: ${{ secrets.UC_KEY_PASSWORD }}
+
+      - name: Build release APK
+        shell: bash
+        run: |
+          bash ./gradlew --no-daemon assembleRelease -Dorg.gradle.java.home="${JAVA_HOME}"
+
+      - name: Build release AAB
+        shell: bash
+        run: |
+          bash ./gradlew --no-daemon bundleRelease -Dorg.gradle.java.home="${JAVA_HOME}"
+
+      - name: Create or update GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag_name }}
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
+          generate_release_notes: true
+
+      - name: Remove signing files
+        if: always()
+        shell: bash
+        run: |
+          rm -f keystore.jks keystore.properties
