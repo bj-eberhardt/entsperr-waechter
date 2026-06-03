@@ -16,3 +16,6 @@ local.properties
 .DS_Store
 
 pages-dist/
+
+keystore.jks
+keystore.properties
