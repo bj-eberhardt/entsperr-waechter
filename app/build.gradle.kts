@@ -6,20 +6,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-fun signingProperty(name: String): String? =
-    providers.gradleProperty(name).orNull ?: System.getenv(name)
-
-val releaseStoreFile = signingProperty("UC_STORE_FILE")
-val releaseStorePassword = signingProperty("UC_STORE_PASSWORD")
-val releaseKeyAlias = signingProperty("UC_KEY_ALIAS")
-val releaseKeyPassword = signingProperty("UC_KEY_PASSWORD")
-val hasReleaseSigning = listOf(
-    releaseStoreFile,
-    releaseStorePassword,
-    releaseKeyAlias,
-    releaseKeyPassword
-).all { !it.isNullOrBlank() }
-
 android {
     namespace = "de.eberhardt.unlockcapture"
     compileSdk = 35
@@ -45,47 +31,18 @@ android {
         compose = true
         buildConfig = true
     }
-
-    signingConfigs {
-        if (hasReleaseSigning) {
-            create("release") {
-                storeFile = file(requireNotNull(releaseStoreFile))
-                storePassword = requireNotNull(releaseStorePassword)
-                keyAlias = requireNotNull(releaseKeyAlias)
-                keyPassword = requireNotNull(releaseKeyPassword)
-            }
-        }
-    }
-
-    buildTypes {
-        getByName("release") {
-            if (hasReleaseSigning) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-        }
-    }
-}
-
-gradle.taskGraph.whenReady {
-    val requestedReleaseTask = allTasks.any { task ->
-        task.path.startsWith(":app:") && task.name.contains("Release", ignoreCase = true)
-    }
-    if (requestedReleaseTask && !hasReleaseSigning) {
-        throw GradleException(
-            "Missing release signing configuration. Set UC_STORE_FILE, UC_STORE_PASSWORD, UC_KEY_ALIAS and UC_KEY_PASSWORD via environment variables or Gradle properties."
-        )
-    }
 }
 
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    val composeUi = "1.9.5"
+    val composeMaterial3 = "1.3.2"
 
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui:$composeUi")
+    implementation("androidx.compose.ui:ui-tooling-preview:$composeUi")
+    implementation("androidx.compose.material3:material3:$composeMaterial3")
     implementation("com.google.android.material:material:1.12.0")
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
@@ -100,5 +57,4 @@ dependencies {
     implementation("androidx.camera:camera-video:$camerax")
     implementation("androidx.camera:camera-view:$camerax")
 
-    debugImplementation("androidx.compose.ui:ui-tooling")
 }

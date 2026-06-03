@@ -823,8 +823,7 @@ private fun HistoryScreen() {
 
 private fun openAppMediaFolder(activity: Activity) {
     val intent = Intent(Intent.ACTION_VIEW).apply {
-        data = Uri.parse("content://media/external/images/media")
-        type = "image/*"
+        setDataAndType(Uri.parse("content://media/external/images/media"), "image/*")
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     runCatching { activity.startActivity(intent) }
