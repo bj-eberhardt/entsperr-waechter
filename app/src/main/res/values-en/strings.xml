@@ -1,0 +1,107 @@
+<resources>
+    <string name="app_name">Unlock Capture</string>
+
+    <string name="tab_settings">Settings</string>
+    <string name="tab_browse">Captures</string>
+    <string name="tab_history">History</string>
+
+    <string name="loading_ellipsis">…</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_close">Close</string>
+    <string name="action_open">Open</string>
+    <string name="action_grant_permissions">Grant permissions</string>
+    <string name="action_open_notification_settings">Open notification settings</string>
+    <string name="action_enable_device_admin">Enable device admin</string>
+    <string name="action_recheck">Check again</string>
+    <string name="action_start_test_capture">Start test capture</string>
+    <string name="action_open_media_folder">Open media folder</string>
+    <string name="action_allow_notifications">Allow notifications</string>
+
+    <string name="action_about_privacy">About &amp; Privacy</string>
+    <string name="about_title">About &amp; Privacy</string>
+    <string name="about_body">Unlock Capture creates photos or short videos with the front camera when specific events are detected, such as failed or successful unlock attempts.\n\nRecording runs through a foreground service, so Android shows a visible notification while it is active.\n\nStorage locations:\n• Photos: Pictures/UnlockCapture\n• Videos: Movies/UnlockCapture\n\nNote: This app is intended for your own devices and requires the device owner’s consent.</string>
+
+    <string name="setup_title">Setup</string>
+    <string name="setup_intro">Please complete the following steps. You can change them again at any time.</string>
+    <string name="setup_req_camera_title">Camera</string>
+    <string name="setup_req_camera_desc">Required for front camera photos and videos.</string>
+    <string name="setup_req_notifications_title">Notifications</string>
+    <string name="setup_req_notifications_desc">Android requires a visible notification while recording.</string>
+    <string name="setup_req_media_title">Media access</string>
+    <string name="setup_req_media_desc">Required to display captures inside the app.</string>
+    <string name="setup_req_admin_title">Device admin</string>
+    <string name="setup_req_admin_desc">Allows detection of failed or successful unlock attempts when supported by the system.</string>
+    <string name="device_admin_explanation">Unlock Capture needs device admin permissions to detect failed or successful unlock attempts.</string>
+
+    <string name="home_status_title">Status: Active</string>
+    <string name="home_status_body">A capture starts when matching events are detected.</string>
+    <string name="capture_mode_title">Capture mode</string>
+    <string name="capture_mode_photo">Photo</string>
+    <string name="capture_mode_video">Video</string>
+    <string name="video_duration_title">Video duration</string>
+    <plurals name="video_duration_seconds">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <string name="video_duration_hint">Applies to video captures (3–20 seconds).</string>
+    <string name="unlock_logging_title">Logging &amp; capture</string>
+    <string name="unlock_logging_failed_only">Failed attempts only</string>
+    <string name="unlock_logging_all">All unlock attempts</string>
+    <string name="unlock_logging_hint">Controls whether successful unlocks are also logged and trigger a capture.</string>
+    <string name="failed_unlock_warning_setting_title">Warning on incorrect code</string>
+    <string name="failed_unlock_warning_setting_desc">Shows a notification when an incorrect security code was entered.</string>
+    <string name="home_note">Note: Modern Android versions show a notification while the camera is recording. This is intentional and important for transparency.</string>
+    <string name="test_capture_running">Test capture running …</string>
+    <string name="test_capture_finished">Test capture finished.</string>
+    <string name="test_capture_finished_error">Test capture finished (error: %1$s).</string>
+
+    <string name="app_lock_title">Lock app</string>
+    <string name="app_lock_enabled">Protect app access</string>
+    <string name="app_lock_timeout_title">Timeout</string>
+    <string name="app_lock_timeout_immediate">Immediately</string>
+    <string name="app_lock_timeout_30s">30 seconds</string>
+    <string name="app_lock_timeout_5m">5 minutes</string>
+    <string name="app_lock_prompt_title">Unlock Unlock Capture</string>
+    <string name="app_lock_prompt_subtitle">Please confirm using fingerprint or device PIN.</string>
+    <string name="app_lock_failed">Unlock canceled or failed.</string>
+
+    <string name="artifact_missing">File missing</string>
+
+    <string name="fg_notification_title">Unlock Capture</string>
+    <string name="fg_notification_text">Front camera recording in progress</string>
+
+    <string name="browse_need_permissions">Captures require media read permissions for photos and videos.</string>
+    <string name="browse_empty_title">No captures yet</string>
+    <string name="browse_empty_body">As soon as a capture is created, it will appear here automatically.</string>
+    <string name="artifact_type_photo">Photo</string>
+    <string name="artifact_type_video">Video</string>
+    <string name="browse_error_prefix">Error while loading: %1$s</string>
+    <string name="browse_open_hint">Tap to open</string>
+
+    <string name="history_empty_title">No events yet</string>
+    <string name="history_empty_body">As soon as events are detected, they will appear here automatically.</string>
+    <string name="history_error_prefix">Error while loading: %1$s</string>
+    <string name="history_tamper_warning">Warning: The audit log is corrupted or has been modified. Entries can no longer be verified.</string>
+    <string name="history_event_unlock_failed">Incorrect security code.</string>
+    <string name="history_event_unlock_success">Device unlocked successfully.</string>
+
+    <string name="boot_ready_toast">Unlock Capture is ready.</string>
+
+    <string name="status_ok">OK</string>
+    <string name="status_missing">Missing</string>
+    <string name="status_format">%1$s: %2$s</string>
+
+    <string name="capture_channel_name">Recording</string>
+    <string name="capture_channel_desc">Shown while the front camera is recording.</string>
+    <string name="failed_unlock_warning_channel_name">Warnings</string>
+    <string name="failed_unlock_warning_channel_desc">Warnings for failed unlock attempts.</string>
+    <string name="failed_unlock_warning_title">Warning</string>
+    <string name="failed_unlock_warning_text">Incorrect security code.</string>
+    <plurals name="failed_unlock_warning_count">
+        <item quantity="one">%1$d incorrect security code detected.</item>
+        <item quantity="other">%1$d incorrect security codes detected.</item>
+    </plurals>
+
+    <string name="capture_error_camera_permission_missing">Camera permission is missing.</string>
+    <string name="capture_error_video_finalize">Video finalization failed (code: %1$s).</string>
+</resources>

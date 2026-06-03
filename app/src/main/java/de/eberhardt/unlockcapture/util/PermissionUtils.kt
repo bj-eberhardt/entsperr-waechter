@@ -31,8 +31,19 @@ object PermissionUtils {
         }
     }
 
+    fun notificationPermissions(): Array<String> {
+        return if (android.os.Build.VERSION.SDK_INT >= 33) {
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            emptyArray()
+        }
+    }
+
     fun hasCamera(context: Context) = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-    fun hasNotifications(context: Context) = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    fun hasNotifications(context: Context): Boolean {
+        return android.os.Build.VERSION.SDK_INT < 33 ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    }
     fun hasMediaRead(context: Context): Boolean {
         return if (android.os.Build.VERSION.SDK_INT >= 33) {
             ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&

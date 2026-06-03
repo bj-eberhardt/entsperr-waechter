@@ -8,7 +8,6 @@ on:
       - ".github/workflows/privacy-pages.yml"
       - "assets/privacy.html"
       - "assets/privacy.en.html"
-      - "scripts/build-privacy-pages.ps1"
       - "scripts/build-privacy-pages.sh"
   workflow_dispatch:
 

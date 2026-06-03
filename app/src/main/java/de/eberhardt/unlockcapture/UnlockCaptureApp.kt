@@ -13,6 +13,7 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 import de.eberhardt.unlockcapture.capture.CaptureForegroundService
 import de.eberhardt.unlockcapture.capture.CaptureTrigger
+import de.eberhardt.unlockcapture.notify.FailedUnlockNotifier
 import de.eberhardt.unlockcapture.settings.CaptureReason
 import de.eberhardt.unlockcapture.util.AppLog
 
@@ -75,6 +76,15 @@ class UnlockCaptureApp : Application() {
                     NotificationManager.IMPORTANCE_LOW
                 ).apply {
                     description = getString(R.string.capture_channel_desc)
+                }
+            )
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    FailedUnlockNotifier.CHANNEL_ID,
+                    getString(R.string.failed_unlock_warning_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = getString(R.string.failed_unlock_warning_channel_desc)
                 }
             )
         }

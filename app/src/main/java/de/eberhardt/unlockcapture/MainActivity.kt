@@ -1,6 +1,5 @@
 ﻿package de.eberhardt.unlockcapture
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -89,11 +88,16 @@ import de.eberhardt.unlockcapture.capture.CaptureForegroundService
 import de.eberhardt.unlockcapture.security.BiometricGate
 import android.os.SystemClock
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import de.eberhardt.unlockcapture.integrity.IntegrityStore
 import android.content.Context
+import de.eberhardt.unlockcapture.notify.FailedUnlockNotifier
 
 class MainActivity : AppCompatActivity() {
     private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}
+    private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        refreshState?.invoke()
+    }
     private var refreshState: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +110,14 @@ class MainActivity : AppCompatActivity() {
                 },
                 onOpenDeviceAdmin = { startActivity(PermissionUtils.deviceAdminIntent(this)) },
                 onOpenNotificationSettings = { startActivity(PermissionUtils.appNotificationSettingsIntent(this)) },
+                onRequestNotifications = {
+                    val permissions = PermissionUtils.notificationPermissions()
+                    if (permissions.isNotEmpty()) {
+                        notificationPermissionLauncher.launch(permissions)
+                    } else {
+                        refreshState?.invoke()
+                    }
+                },
                 registerRefresh = { refreshState = it }
             )
         }
@@ -114,6 +126,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         AppLog.i("MainActivity", "onResume()")
+        lifecycleScope.launch(Dispatchers.IO) {
+            SettingsRepository(applicationContext).resetFailedUnlockWarningStats()
+        }
+        FailedUnlockNotifier.cancel(this)
         refreshState?.invoke()
     }
 }
@@ -126,6 +142,7 @@ private fun AppScreen(
     onRequestPermissions: () -> Unit,
     onOpenDeviceAdmin: () -> Unit,
     onOpenNotificationSettings: () -> Unit,
+    onRequestNotifications: () -> Unit,
     registerRefresh: (() -> Unit) -> Unit
 ) {
     val context = LocalContext.current
@@ -136,6 +153,7 @@ private fun AppScreen(
     val lockEnabled by settings.lockEnabled.collectAsState(initial = false)
     val lockTimeoutMs by settings.lockTimeoutMs.collectAsState(initial = 0L)
     val lastAuthElapsedMs by settings.lastAuthElapsedMs.collectAsState(initial = 0L)
+    val failedUnlockWarningEnabled by settings.failedUnlockWarningEnabled.collectAsState(initial = false)
     val scope = rememberCoroutineScope()
 
     var cameraOk by remember { mutableStateOf(false) }
@@ -295,13 +313,17 @@ private fun AppScreen(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            if (cameraOk && notificationsOk && adminOk) {
+                            if (cameraOk && adminOk) {
                                 HomeScreen(
                                     mode = mode,
                                     videoDurationSeconds = videoDurationSeconds,
                                     onVideoDurationSeconds = { scope.launch { settings.setVideoDurationSeconds(it) } },
                                     unlockLoggingMode = unlockLoggingMode,
                                     onUnlockLoggingMode = { scope.launch { settings.setUnlockLoggingMode(it) } },
+                                    failedUnlockWarningEnabled = failedUnlockWarningEnabled,
+                                    onFailedUnlockWarningEnabled = { scope.launch { settings.setFailedUnlockWarningEnabled(it) } },
+                                    notificationsOk = notificationsOk,
+                                    onRequestNotifications = onRequestNotifications,
                                     lockEnabled = lockEnabled,
                                     onLockEnabled = { scope.launch { settings.setLockEnabled(it) } },
                                     lockTimeoutMs = lockTimeoutMs,
@@ -621,6 +643,10 @@ private fun HomeScreen(
     onVideoDurationSeconds: (Int) -> Unit,
     unlockLoggingMode: UnlockLoggingMode,
     onUnlockLoggingMode: (UnlockLoggingMode) -> Unit,
+    failedUnlockWarningEnabled: Boolean,
+    onFailedUnlockWarningEnabled: (Boolean) -> Unit,
+    notificationsOk: Boolean,
+    onRequestNotifications: () -> Unit,
     lockEnabled: Boolean,
     onLockEnabled: (Boolean) -> Unit,
     lockTimeoutMs: Long,
@@ -659,6 +685,20 @@ private fun HomeScreen(
             ModeRow(stringResource(R.string.unlock_logging_failed_only), UnlockLoggingMode.FAILED_ONLY, unlockLoggingMode, onUnlockLoggingMode)
             ModeRow(stringResource(R.string.unlock_logging_all), UnlockLoggingMode.ALL, unlockLoggingMode, onUnlockLoggingMode)
             Text(stringResource(R.string.unlock_logging_hint), style = MaterialTheme.typography.bodySmall)
+        }
+    }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(stringResource(R.string.failed_unlock_warning_setting_title), style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.failed_unlock_warning_setting_desc), modifier = Modifier.weight(1f))
+                Switch(checked = failedUnlockWarningEnabled, onCheckedChange = onFailedUnlockWarningEnabled)
+            }
+            if (!notificationsOk) {
+                Button(onClick = onRequestNotifications, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.action_allow_notifications))
+                }
+            }
         }
     }
     Card(modifier = Modifier.fillMaxWidth()) {
