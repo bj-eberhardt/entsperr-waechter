@@ -8,6 +8,7 @@ import android.util.Base64
 import de.eberhardt.unlockcapture.util.AppLog
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
@@ -245,8 +246,12 @@ object AuditLog {
             prevMac = r.mac
         }
         tmp.writeText(sb.toString(), Charsets.UTF_8)
-        if (target.exists()) target.delete()
-        tmp.renameTo(target)
+        if (target.exists() && !target.delete()) {
+            throw IOException("Failed to delete ${target.name}")
+        }
+        if (!tmp.renameTo(target)) {
+            throw IOException("Failed to replace ${target.name}")
+        }
     }
 
     private fun rotateTampered(file: File, dir: File, now: Long) {

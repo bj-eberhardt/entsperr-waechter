@@ -28,6 +28,20 @@ class SettingsRepository(private val context: Context) {
     private val failedUnlockWarningCountKey = intPreferencesKey("failed_unlock_warning_count")
     private val failedUnlockWarningLastTimestampMsKey = longPreferencesKey("failed_unlock_warning_last_timestamp_ms")
 
+    val appSettings: Flow<AppSettings> = context.dataStore.data.map { prefs ->
+        AppSettings(
+            captureMode = runCatching { CaptureMode.valueOf(prefs[captureModeKey] ?: CaptureMode.PHOTO.name) }
+                .getOrDefault(CaptureMode.PHOTO),
+            videoDurationSeconds = (prefs[videoDurationSecondsKey] ?: 4).coerceIn(3, 20),
+            unlockLoggingMode = runCatching { UnlockLoggingMode.valueOf(prefs[unlockLoggingModeKey] ?: UnlockLoggingMode.FAILED_ONLY.name) }
+                .getOrDefault(UnlockLoggingMode.FAILED_ONLY),
+            lockEnabled = prefs[lockEnabledKey] ?: false,
+            lockTimeoutMs = normalizeLockTimeoutMs(prefs[lockTimeoutMsKey] ?: 0L),
+            lastAuthElapsedMs = prefs[lastAuthElapsedMsKey] ?: 0L,
+            failedUnlockWarningEnabled = prefs[failedUnlockWarningEnabledKey] ?: false,
+        )
+    }
+
     val videoDurationSeconds: Flow<Int> = context.dataStore.data.map { prefs ->
         val raw = prefs[videoDurationSecondsKey] ?: 4
         raw.coerceIn(3, 20)
@@ -44,10 +58,7 @@ class SettingsRepository(private val context: Context) {
 
     val lockTimeoutMs: Flow<Long> = context.dataStore.data.map { prefs ->
         val raw = prefs[lockTimeoutMsKey] ?: 0L
-        when (raw) {
-            0L, 30_000L, 300_000L -> raw
-            else -> 0L
-        }
+        normalizeLockTimeoutMs(raw)
     }
 
     val lastAuthElapsedMs: Flow<Long> = context.dataStore.data.map { prefs ->
@@ -81,10 +92,7 @@ class SettingsRepository(private val context: Context) {
     }
 
     suspend fun setLockTimeoutMs(timeoutMs: Long) {
-        val normalized = when (timeoutMs) {
-            0L, 30_000L, 300_000L -> timeoutMs
-            else -> 0L
-        }
+        val normalized = normalizeLockTimeoutMs(timeoutMs)
         context.dataStore.edit { it[lockTimeoutMsKey] = normalized }
     }
 
@@ -112,6 +120,13 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { prefs ->
             prefs.remove(failedUnlockWarningCountKey)
             prefs.remove(failedUnlockWarningLastTimestampMsKey)
+        }
+    }
+
+    private fun normalizeLockTimeoutMs(timeoutMs: Long): Long {
+        return when (timeoutMs) {
+            0L, 30_000L, 300_000L -> timeoutMs
+            else -> 0L
         }
     }
 }

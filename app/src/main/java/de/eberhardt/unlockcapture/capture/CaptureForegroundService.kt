@@ -28,8 +28,6 @@ import de.eberhardt.unlockcapture.R
 import de.eberhardt.unlockcapture.settings.CaptureMode
 import de.eberhardt.unlockcapture.settings.CaptureReason
 import de.eberhardt.unlockcapture.settings.SettingsRepository
-import de.eberhardt.unlockcapture.integrity.Hashing
-import de.eberhardt.unlockcapture.integrity.IntegrityStore
 import de.eberhardt.unlockcapture.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,11 +59,13 @@ class CaptureForegroundService : Service(), LifecycleOwner {
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val cameraExecutor = Executors.newSingleThreadExecutor()
+    private lateinit var statusBroadcaster: CaptureStatusBroadcaster
     override val lifecycle: Lifecycle get() = lifecycleRegistry
 
     override fun onCreate() {
         super.onCreate()
         AppLog.i("Service", "onCreate()")
+        statusBroadcaster = CaptureStatusBroadcaster(this)
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
         startForeground(NOTIFICATION_ID, notification())
     }
@@ -89,12 +89,12 @@ class CaptureForegroundService : Service(), LifecycleOwner {
             try {
                 if (ContextCompat.checkSelfPermission(this@CaptureForegroundService, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     AppLog.w("Service", "CAMERA permission missing -> abort")
-                    sendStatus(reason, STATE_FINISHED, success = false, error = ERROR_CAMERA_PERMISSION_MISSING)
+                    statusBroadcaster.finished(reason, success = false, error = ERROR_CAMERA_PERMISSION_MISSING)
                     return@launch
                 }
                 val mode = SettingsRepository(this@CaptureForegroundService).captureMode.first()
                 AppLog.i("Service", "Mode=$mode")
-                sendStatus(reason, STATE_STARTED, success = true, error = null)
+                statusBroadcaster.started(reason)
                 when (mode) {
                     CaptureMode.PHOTO -> takePhoto(reason)
                     CaptureMode.VIDEO_4_SECONDS -> recordVideo(reason)
@@ -149,27 +149,17 @@ class CaptureForegroundService : Service(), LifecycleOwner {
         imageCapture.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
             override fun onError(exception: ImageCaptureException) {
                 AppLog.e("Capture", "Photo error: ${exception.message}", exception)
-                sendStatus(reason, STATE_FINISHED, success = false, error = exception.message ?: exception.javaClass.simpleName)
+                statusBroadcaster.finished(reason, success = false, error = exception.message ?: exception.javaClass.simpleName)
                 stopSelf()
             }
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 AppLog.i("Capture", "Photo saved: uri=${outputFileResults.savedUri}")
                 outputFileResults.savedUri?.let { uri ->
                     scope.launch(Dispatchers.IO) {
-                        runCatching {
-                            val stream = contentResolver.openInputStream(uri) ?: return@runCatching
-                            val sha = Hashing.sha256Hex(stream)
-                            val size = runCatching { contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L }.getOrDefault(-1L)
-                            IntegrityStore.upsert(
-                                this@CaptureForegroundService,
-                                IntegrityStore.Record(uri = uri.toString(), sha256 = sha, sizeBytes = size, tsMs = System.currentTimeMillis())
-                            )
-                        }.onFailure {
-                            AppLog.w("Integrity", "Failed to hash photo", it)
-                        }
+                        CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "photo")
                     }
                 }
-                sendStatus(reason, STATE_FINISHED, success = true, error = null)
+                statusBroadcaster.finished(reason, success = true)
                 stopSelf()
             }
         })
@@ -216,23 +206,12 @@ class CaptureForegroundService : Service(), LifecycleOwner {
                         if (event.error == VideoRecordEvent.Finalize.ERROR_NONE) {
                             val uri = event.outputResults.outputUri
                             scope.launch(Dispatchers.IO) {
-                                runCatching {
-                                    val stream = contentResolver.openInputStream(uri) ?: return@runCatching
-                                    val sha = Hashing.sha256Hex(stream)
-                                    val size = runCatching { contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L }.getOrDefault(-1L)
-                                    IntegrityStore.upsert(
-                                        this@CaptureForegroundService,
-                                        IntegrityStore.Record(uri = uri.toString(), sha256 = sha, sizeBytes = size, tsMs = System.currentTimeMillis())
-                                    )
-                                }.onFailure {
-                                    AppLog.w("Integrity", "Failed to hash video", it)
-                                }
+                                CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "video")
                             }
-                            sendStatus(reason, STATE_FINISHED, success = true, error = null)
+                            statusBroadcaster.finished(reason, success = true)
                         } else {
-                            sendStatus(
+                            statusBroadcaster.finished(
                                 reason,
-                                STATE_FINISHED,
                                 success = false,
                                 error = ERROR_VIDEO_FINALIZE_PREFIX + event.error
                             )
@@ -263,15 +242,4 @@ class CaptureForegroundService : Service(), LifecycleOwner {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
-
-    private fun sendStatus(reason: CaptureReason, state: String, success: Boolean, error: String?) {
-        val intent = Intent(ACTION_CAPTURE_STATUS).apply {
-            setPackage(packageName)
-            putExtra(EXTRA_REASON, reason.name)
-            putExtra(EXTRA_STATE, state)
-            putExtra(EXTRA_SUCCESS, success)
-            if (error != null) putExtra(EXTRA_ERROR, error)
-        }
-        sendBroadcast(intent)
-    }
 }

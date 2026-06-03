@@ -3,6 +3,7 @@ package de.eberhardt.unlockcapture.integrity
 import android.content.Context
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
 
 object IntegrityStore {
     private const val FILE_NAME = "integrity.jsonl"
@@ -70,7 +71,11 @@ object IntegrityStore {
             sb.append(obj.toString()).append('\n')
         }
         tmp.writeText(sb.toString(), Charsets.UTF_8)
-        if (file.exists()) file.delete()
-        tmp.renameTo(file)
+        if (file.exists() && !file.delete()) {
+            throw IOException("Failed to delete ${file.name}")
+        }
+        if (!tmp.renameTo(file)) {
+            throw IOException("Failed to replace ${file.name}")
+        }
     }
 }
