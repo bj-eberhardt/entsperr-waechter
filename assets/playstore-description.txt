@@ -1,0 +1,7 @@
+<de-DE>
+EntsperrWächter hilft dir dabei, unbekannte Zugriffe auf dein Smartphone nachzuvollziehen. Wenn ein Entsperrversuch erkannt wird, kann die App – je nach Einstellung – automatisch eine Aufnahme (Foto oder kurzes Video) mit der Frontkamera erstellen. Alle Aufnahmen werden lokal auf dem Gerät gespeichert und können in der App angezeigt werden.
+</de-DE>
+
+<en-US>
+Unlock Capture helps you trace unknown access attempts on your smartphone. When an unlock attempt is detected, the app can automatically create a recording (photo or short video) with the front camera, depending on your settings. All recordings are stored locally on the device and can be viewed inside the app.
+</en-US>
