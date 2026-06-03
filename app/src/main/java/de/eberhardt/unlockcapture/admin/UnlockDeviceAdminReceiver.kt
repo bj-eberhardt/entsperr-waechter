@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import de.eberhardt.unlockcapture.audit.AuditLog
 import de.eberhardt.unlockcapture.capture.CaptureTrigger
+import de.eberhardt.unlockcapture.notify.FailedUnlockNotifier
 import de.eberhardt.unlockcapture.settings.CaptureReason
 import de.eberhardt.unlockcapture.settings.SettingsRepository
 import de.eberhardt.unlockcapture.settings.UnlockLoggingMode
@@ -42,6 +43,13 @@ class UnlockDeviceAdminReceiver : DeviceAdminReceiver() {
             eventKey = AuditLog.EVENT_UNLOCK_FAILED,
             result = "FAIL"
         )
+        scope.launch {
+            val settings = SettingsRepository(context.applicationContext)
+            val enabled = settings.failedUnlockWarningEnabled.first()
+            if (enabled) {
+                FailedUnlockNotifier.show(context, settings.recordFailedUnlockWarning())
+            }
+        }
         CaptureTrigger.start(context, CaptureReason.PASSWORD_FAILED)
     }
 

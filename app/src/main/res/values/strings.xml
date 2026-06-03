@@ -15,6 +15,7 @@
     <string name="action_recheck">Erneut prüfen</string>
     <string name="action_start_test_capture">Testaufnahme starten</string>
     <string name="action_open_media_folder">Medienordner öffnen</string>
+    <string name="action_allow_notifications">Benachrichtigungen zulassen</string>
 
     <string name="action_about_privacy">Info &amp; Datenschutz</string>
     <string name="about_title">Info &amp; Datenschutz</string>
@@ -47,6 +48,8 @@
     <string name="unlock_logging_failed_only">Nur erfolglose Versuche</string>
     <string name="unlock_logging_all">Alle Entsperrversuche</string>
     <string name="unlock_logging_hint">Legt fest, ob bei erfolgreichen Entsperrungen ebenfalls protokolliert und eine Aufnahme gestartet wird.</string>
+    <string name="failed_unlock_warning_setting_title">Warnung bei falschem Code</string>
+    <string name="failed_unlock_warning_setting_desc">Zeigt eine Benachrichtigung an, wenn ein falscher Sicherheitscode eingegeben wurde.</string>
     <string name="home_note">Hinweis: Moderne Android-Versionen zeigen während der Kamera-Aufnahme eine Benachrichtigung. Das ist beabsichtigt und wichtig für Transparenz.</string>
     <string name="test_capture_running">Testaufnahme läuft …</string>
     <string name="test_capture_finished">Testaufnahme beendet.</string>
@@ -90,6 +93,14 @@
 
     <string name="capture_channel_name">Aufnahme</string>
     <string name="capture_channel_desc">Wird angezeigt, während die Frontkamera aufnimmt.</string>
+    <string name="failed_unlock_warning_channel_name">Warnungen</string>
+    <string name="failed_unlock_warning_channel_desc">Warnungen bei fehlerhaften Entsperrversuchen.</string>
+    <string name="failed_unlock_warning_title">Warnung</string>
+    <string name="failed_unlock_warning_text">Falscher Sicherheitscode.</string>
+    <plurals name="failed_unlock_warning_count">
+        <item quantity="one">%1$d falscher Sicherheitscode erkannt.</item>
+        <item quantity="other">%1$d falsche Sicherheitscodes erkannt.</item>
+    </plurals>
 
     <string name="capture_error_camera_permission_missing">Kameraberechtigung fehlt.</string>
     <string name="capture_error_video_finalize">Videoabschluss fehlgeschlagen (Code: %1$s).</string>
