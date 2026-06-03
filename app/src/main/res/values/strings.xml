@@ -1,0 +1,107 @@
+<resources>
+    <string name="app_name">EntsperrWächter</string>
+
+    <!-- Tabs -->
+    <string name="tab_settings">Einstellungen</string>
+    <string name="tab_browse">Aufnahmen</string>
+    <string name="tab_history">History</string>
+
+    <!-- Common -->
+    <string name="loading_ellipsis">…</string>
+    <string name="action_refresh">Aktualisieren</string>
+    <string name="action_close">Schließen</string>
+    <string name="action_open">Öffnen</string>
+    <string name="action_grant_permissions">Berechtigungen erteilen</string>
+    <string name="action_open_notification_settings">Benachrichtigungseinstellungen öffnen</string>
+    <string name="action_enable_device_admin">Geräteadministrator aktivieren</string>
+    <string name="action_recheck">Erneut prüfen</string>
+    <string name="action_start_test_capture">Testaufnahme starten</string>
+    <string name="action_open_media_folder">Medienordner öffnen</string>
+
+    <!-- Top / About -->
+    <string name="action_about_privacy">Info &amp; Datenschutz</string>
+    <string name="about_title">Info &amp; Datenschutz</string>
+    <string name="about_body">
+        Unlock Capture erstellt Fotos oder kurze Videos mit der Frontkamera, wenn bestimmte Ereignisse erkannt werden (z.B. fehlgeschlagene oder erfolgreiche Entsperrversuche).
+        \n\nDie Aufnahme läuft über einen Foreground Service – Android zeigt währenddessen eine sichtbare Benachrichtigung.
+        \n\nSpeicherorte:
+        \n• Fotos: Pictures/UnlockCapture
+        \n• Videos: Movies/UnlockCapture
+        \n\nHinweis: Diese App ist für eigene Geräte gedacht und erfordert Zustimmung des Gerätebesitzers.
+    </string>
+
+    <!-- Setup -->
+    <string name="setup_title">Einrichtung</string>
+    <string name="setup_intro">Bitte schließe die folgenden Schritte ab. Du kannst sie jederzeit wieder ändern.</string>
+    <string name="setup_req_camera_title">Kamera</string>
+    <string name="setup_req_camera_desc">Wird für Frontkamera-Fotos/-Videos benötigt.</string>
+    <string name="setup_req_notifications_title">Benachrichtigungen</string>
+    <string name="setup_req_notifications_desc">Android verlangt eine sichtbare Benachrichtigung während der Aufnahme.</string>
+    <string name="setup_req_media_title">Medienzugriff</string>
+    <string name="setup_req_media_desc">Wird benötigt, um Aufnahmen in der App anzeigen zu können.</string>
+    <string name="setup_req_admin_title">Geräteadministrator</string>
+    <string name="setup_req_admin_desc">Ermöglicht das Erkennen fehlgeschlagener/erfolgreicher Entsperrversuche (falls vom System unterstützt).</string>
+    <string name="device_admin_explanation">Unlock Capture benötigt Geräteadministrator-Rechte, um fehlgeschlagene oder erfolgreiche Entsperrversuche zu erkennen.</string>
+
+    <!-- Home -->
+    <string name="home_status_title">Status: Aktiv</string>
+    <string name="home_status_body">Bei passenden Ereignissen wird eine Aufnahme gestartet.</string>
+    <string name="capture_mode_title">Aufnahmemodus</string>
+    <string name="capture_mode_photo">Foto</string>
+    <string name="capture_mode_video_4s">Video</string>
+    <string name="video_duration_title">Videolänge</string>
+    <string name="video_duration_value">%1$d Sekunden</string>
+    <string name="video_duration_hint">Gilt für Video-Aufnahmen (3–20 Sekunden).</string>
+    <string name="unlock_logging_title">Protokollierung &amp; Aufnahme</string>
+    <string name="unlock_logging_failed_only">Nur erfolglose Versuche</string>
+    <string name="unlock_logging_all">Alle Entsperrversuche</string>
+    <string name="unlock_logging_hint">Legt fest, ob bei erfolgreichen Entsperrungen ebenfalls protokolliert und eine Aufnahme gestartet wird.</string>
+    <string name="home_note">Hinweis: Moderne Android-Versionen zeigen während der Kamera-Aufnahme eine Benachrichtigung. Das ist beabsichtigt und wichtig für Transparenz.</string>
+    <string name="test_capture_running">Testaufnahme läuft …</string>
+    <string name="test_capture_finished">Testaufnahme beendet.</string>
+    <string name="test_capture_finished_error">Testaufnahme beendet (Fehler: %1$s).</string>
+
+    <!-- App lock -->
+    <string name="app_lock_title">App sperren</string>
+    <string name="app_lock_enabled">App-Zugriff schützen</string>
+    <string name="app_lock_timeout_title">Timeout</string>
+    <string name="app_lock_timeout_immediate">Sofort</string>
+    <string name="app_lock_timeout_30s">30 Sekunden</string>
+    <string name="app_lock_timeout_5m">5 Minuten</string>
+    <string name="app_lock_prompt_title">Unlock Capture entsperren</string>
+    <string name="app_lock_prompt_subtitle">Bitte mit Fingerabdruck oder Geräte-PIN bestätigen.</string>
+    <string name="app_lock_failed">Entsperren abgebrochen oder fehlgeschlagen.</string>
+
+    <!-- Integrity -->
+    <string name="artifact_missing">Datei fehlt</string>
+
+    <!-- Foreground service notification -->
+    <string name="fg_notification_title">Unlock Capture</string>
+    <string name="fg_notification_text">Frontkamera-Aufnahme läuft</string>
+
+    <!-- Browse -->
+    <string name="browse_need_permissions">Aufnahmen benötigen Medien-Leserechte (Fotos/Videos).</string>
+    <string name="browse_empty_title">Noch keine Aufnahmen</string>
+    <string name="browse_empty_body">Sobald eine Aufnahme erstellt wurde, erscheint sie hier automatisch.</string>
+    <string name="artifact_type_photo">Foto</string>
+    <string name="artifact_type_video">Video</string>
+    <string name="browse_error_prefix">Fehler beim Laden:</string>
+    <string name="browse_open_hint">Tippen zum Öffnen</string>
+
+    <!-- History -->
+    <string name="history_empty_title">Noch keine Ereignisse</string>
+    <string name="history_empty_body">Sobald Ereignisse erkannt werden, erscheinen sie hier automatisch.</string>
+    <string name="history_error_prefix">Fehler beim Laden:</string>
+    <string name="history_tamper_warning">Achtung: Audit-Log ist beschädigt oder wurde verändert. Einträge können nicht mehr verifiziert werden.</string>
+
+    <!-- Boot -->
+    <string name="boot_ready_toast">Unlock Capture ist bereit.</string>
+
+    <!-- Generic status -->
+    <string name="status_ok">OK</string>
+    <string name="status_missing">fehlt</string>
+
+    <!-- Notification channel -->
+    <string name="capture_channel_name">Aufnahme</string>
+    <string name="capture_channel_desc">Wird angezeigt, während die Frontkamera aufnimmt.</string>
+</resources>

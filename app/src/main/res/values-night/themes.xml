@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.UnlockCapture" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/uc_brand_primary</item>
+        <item name="colorSecondary">@color/uc_brand_secondary</item>
+    </style>
+</resources>
+
