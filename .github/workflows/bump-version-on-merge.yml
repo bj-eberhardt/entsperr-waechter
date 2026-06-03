@@ -62,15 +62,24 @@ jobs:
 
           print(f"versionCode -> {new_version_code}")
           print(f"versionName -> {new_version_name}")
+          Path(".bumped-version-name").write_text(new_version_name, encoding="utf-8")
           PY
 
       - name: Commit and push changes
         shell: bash
         run: |
+          VERSION_NAME="$(cat .bumped-version-name)"
+          TAG_NAME="v${VERSION_NAME}"
           git add app/build.gradle.kts
           if git diff --cached --quiet; then
             echo "No version changes detected."
             exit 0
           fi
           git commit -m "ci: bump app version after merge [skip ci]"
+          if git rev-parse "${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Tag ${TAG_NAME} already exists locally."
+            exit 1
+          fi
+          git tag "${TAG_NAME}"
           git push origin HEAD:master
+          git push origin "${TAG_NAME}"
