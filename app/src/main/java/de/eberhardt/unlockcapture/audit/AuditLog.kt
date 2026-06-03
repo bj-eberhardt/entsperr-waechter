@@ -8,7 +8,7 @@ import android.util.Base64
 import de.eberhardt.unlockcapture.util.AppLog
 import org.json.JSONObject
 import java.io.File
-import java.text.SimpleDateFormat
+import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
 import javax.crypto.KeyGenerator
@@ -31,6 +31,7 @@ object AuditLog {
         val tsMs: Long,
         val type: String,
         val message: String,
+        val eventKey: String?,
         val result: String?,
         val isoTime: String,
     )
@@ -44,8 +45,22 @@ object AuditLog {
     private const val FILE_NAME = "audit.log"
     private const val TAMPER_FLAG_NAME = "audit.tampered"
     private const val RETENTION_MS = 14L * 24 * 60 * 60 * 1000
+    const val EVENT_UNLOCK_FAILED = "unlock_failed"
+    const val EVENT_UNLOCK_SUCCESS = "unlock_success"
 
     private val lock = Any()
+
+    fun appendUnlockEvent(context: Context, eventKey: String, result: String) {
+        append(
+            context = context,
+            type = "UNLOCK",
+            message = "",
+            meta = mapOf(
+                "eventKey" to eventKey,
+                "result" to result,
+            )
+        )
+    }
 
     fun append(context: Context, type: String, message: String, meta: Map<String, String> = emptyMap()) {
         runCatching {
@@ -105,7 +120,11 @@ object AuditLog {
         val entries = mutableListOf<Entry>()
         var expectedPrev = ""
         var lineNo = 0
-        val timeFmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.GERMANY)
+        val timeFmt = DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM,
+            DateFormat.SHORT,
+            Locale.getDefault()
+        )
 
         val lines = runCatching { file.readLines(Charsets.UTF_8) }.getOrElse {
             return ReadResult(emptyList(), AuditLogVerification.Tampered(0, "Read failed"))
@@ -143,6 +162,7 @@ object AuditLog {
                     tsMs = ts,
                     type = type,
                     message = msg,
+                    eventKey = runCatching { JSONObject(metaJson).optString("eventKey").takeIf { it.isNotBlank() } }.getOrNull(),
                     result = runCatching { JSONObject(metaJson).optString("result").takeIf { it.isNotBlank() } }.getOrNull(),
                     isoTime = timeFmt.format(Date(ts)),
                 )

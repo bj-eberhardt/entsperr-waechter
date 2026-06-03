@@ -1,8 +1,24 @@
+import org.gradle.api.GradleException
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+fun signingProperty(name: String): String? =
+    providers.gradleProperty(name).orNull ?: System.getenv(name)
+
+val releaseStoreFile = signingProperty("UC_STORE_FILE")
+val releaseStorePassword = signingProperty("UC_STORE_PASSWORD")
+val releaseKeyAlias = signingProperty("UC_KEY_ALIAS")
+val releaseKeyPassword = signingProperty("UC_KEY_PASSWORD")
+val hasReleaseSigning = listOf(
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+).all { !it.isNullOrBlank() }
 
 android {
     namespace = "de.eberhardt.unlockcapture"
@@ -12,8 +28,8 @@ android {
         applicationId = "de.eberhardt.unlockcapture"
         minSdk = 21
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.4.0"
+        versionCode = 5
+        versionName = "0.5.0"
     }
 
     compileOptions {
@@ -28,6 +44,36 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(requireNotNull(releaseStoreFile))
+                storePassword = requireNotNull(releaseStorePassword)
+                keyAlias = requireNotNull(releaseKeyAlias)
+                keyPassword = requireNotNull(releaseKeyPassword)
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    val requestedReleaseTask = allTasks.any { task ->
+        task.path.startsWith(":app:") && task.name.contains("Release", ignoreCase = true)
+    }
+    if (requestedReleaseTask && !hasReleaseSigning) {
+        throw GradleException(
+            "Missing release signing configuration. Set UC_STORE_FILE, UC_STORE_PASSWORD, UC_KEY_ALIAS and UC_KEY_PASSWORD via environment variables or Gradle properties."
+        )
     }
 }
 

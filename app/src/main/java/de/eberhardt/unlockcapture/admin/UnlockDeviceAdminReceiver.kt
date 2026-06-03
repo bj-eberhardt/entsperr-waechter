@@ -37,11 +37,10 @@ class UnlockDeviceAdminReceiver : DeviceAdminReceiver() {
     @Deprecated("Deprecated DeviceAdminReceiver callback (kept for compatibility).")
     override fun onPasswordFailed(context: Context, intent: Intent) {
         AppLog.i("Admin", "onPasswordFailed extras=${intent.extras?.keySet()?.joinToString(",") ?: "-"}")
-        AuditLog.append(
-            context.applicationContext,
-            "UNLOCK",
-            "Falscher Sicherheitscode.",
-            meta = mapOf("result" to "FAIL")
+        AuditLog.appendUnlockEvent(
+            context = context.applicationContext,
+            eventKey = AuditLog.EVENT_UNLOCK_FAILED,
+            result = "FAIL"
         )
         CaptureTrigger.start(context, CaptureReason.PASSWORD_FAILED)
     }
@@ -53,11 +52,10 @@ class UnlockDeviceAdminReceiver : DeviceAdminReceiver() {
         scope.launch {
             val mode = SettingsRepository(context.applicationContext).unlockLoggingMode.first()
             if (mode == UnlockLoggingMode.ALL) {
-                AuditLog.append(
-                    context.applicationContext,
-                    "UNLOCK",
-                    "Gerät erfolgreich entsperrt.",
-                    meta = mapOf("result" to "SUCCESS")
+                AuditLog.appendUnlockEvent(
+                    context = context.applicationContext,
+                    eventKey = AuditLog.EVENT_UNLOCK_SUCCESS,
+                    result = "SUCCESS"
                 )
                 CaptureTrigger.start(context, CaptureReason.PASSWORD_SUCCEEDED)
             }

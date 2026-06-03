@@ -18,7 +18,6 @@ import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
-import androidx.compose.ui.text.intl.Locale
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -40,11 +39,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.concurrent.Executors
-import kotlin.text.format
 
 class CaptureForegroundService : Service(), LifecycleOwner {
     companion object {
@@ -57,6 +53,8 @@ class CaptureForegroundService : Service(), LifecycleOwner {
         const val EXTRA_ERROR = "error"
         const val STATE_STARTED = "STARTED"
         const val STATE_FINISHED = "FINISHED"
+        const val ERROR_CAMERA_PERMISSION_MISSING = "camera_permission_missing"
+        const val ERROR_VIDEO_FINALIZE_PREFIX = "video_finalize:"
         @Volatile private var running = false
     }
 
@@ -91,7 +89,7 @@ class CaptureForegroundService : Service(), LifecycleOwner {
             try {
                 if (ContextCompat.checkSelfPermission(this@CaptureForegroundService, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     AppLog.w("Service", "CAMERA permission missing -> abort")
-                    sendStatus(reason, STATE_FINISHED, success = false, error = "CAMERA permission missing")
+                    sendStatus(reason, STATE_FINISHED, success = false, error = ERROR_CAMERA_PERMISSION_MISSING)
                     return@launch
                 }
                 val mode = SettingsRepository(this@CaptureForegroundService).captureMode.first()
@@ -232,7 +230,12 @@ class CaptureForegroundService : Service(), LifecycleOwner {
                             }
                             sendStatus(reason, STATE_FINISHED, success = true, error = null)
                         } else {
-                            sendStatus(reason, STATE_FINISHED, success = false, error = "Video finalize error=${event.error}")
+                            sendStatus(
+                                reason,
+                                STATE_FINISHED,
+                                success = false,
+                                error = ERROR_VIDEO_FINALIZE_PREFIX + event.error
+                            )
                         }
                         stopSelf()
                     }

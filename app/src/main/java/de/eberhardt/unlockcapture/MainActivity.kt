@@ -54,6 +54,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.asImageBitmap
@@ -89,6 +90,7 @@ import de.eberhardt.unlockcapture.security.BiometricGate
 import android.os.SystemClock
 import androidx.fragment.app.FragmentActivity
 import de.eberhardt.unlockcapture.integrity.IntegrityStore
+import android.content.Context
 
 class MainActivity : AppCompatActivity() {
     private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}
@@ -169,7 +171,7 @@ private fun AppScreen(
                             val msg = if (success) {
                                 ctx.getString(R.string.test_capture_finished)
                             } else {
-                                ctx.getString(R.string.test_capture_finished_error, error ?: "-")
+                                ctx.getString(R.string.test_capture_finished_error, formatCaptureError(ctx, error))
                             }
                             snackbarHostState.showSnackbar(msg)
                         }
@@ -434,7 +436,7 @@ private fun BrowseScreen(
     }
 
     if (error != null) {
-        Text("${stringResource(R.string.browse_error_prefix)} $error")
+        Text(stringResource(R.string.browse_error_prefix, error ?: ""))
     }
 
     if (entries.isEmpty() && !loading) {
@@ -633,14 +635,14 @@ private fun HomeScreen(
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.capture_mode_title), style = MaterialTheme.typography.titleMedium)
             ModeRow(stringResource(R.string.capture_mode_photo), CaptureMode.PHOTO, mode, onMode)
-            ModeRow(stringResource(R.string.capture_mode_video_4s), CaptureMode.VIDEO_4_SECONDS, mode, onMode)
+            ModeRow(stringResource(R.string.capture_mode_video), CaptureMode.VIDEO_4_SECONDS, mode, onMode)
         }
     }
     if (mode == CaptureMode.VIDEO_4_SECONDS) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.video_duration_title), style = MaterialTheme.typography.titleMedium)
-                Text(stringResource(R.string.video_duration_value, videoDurationSeconds))
+                Text(pluralStringResource(R.plurals.video_duration_seconds, videoDurationSeconds, videoDurationSeconds))
                 Slider(
                     value = videoDurationSeconds.toFloat(),
                     onValueChange = { onVideoDurationSeconds(it.toInt()) },
@@ -707,8 +709,12 @@ private fun ModeRow(label: String, value: Long, selected: Long, onMode: (Long) -
 private fun StatusCard(title: String, ok: Boolean, description: String) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text(
-                "$title: ${if (ok) stringResource(R.string.status_ok) else stringResource(R.string.status_missing)}",
+                Text(
+                stringResource(
+                    R.string.status_format,
+                    title,
+                    if (ok) stringResource(R.string.status_ok) else stringResource(R.string.status_missing)
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(6.dp))
@@ -727,8 +733,12 @@ private fun RequirementCard(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(
-                "$title: ${if (ok) stringResource(R.string.status_ok) else stringResource(R.string.status_missing)}",
+                Text(
+                stringResource(
+                    R.string.status_format,
+                    title,
+                    if (ok) stringResource(R.string.status_ok) else stringResource(R.string.status_missing)
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(description)
@@ -777,7 +787,7 @@ private fun HistoryScreen() {
     }
 
     if (error != null) {
-        Text("${stringResource(R.string.history_error_prefix)} $error")
+        Text(stringResource(R.string.history_error_prefix, error ?: ""))
     }
 
     if (items.isEmpty() && !loading) {
@@ -802,7 +812,7 @@ private fun HistoryScreen() {
                         if (isFail) MaterialTheme.colorScheme.error else Color(0xFF2E7D32)
                     Icon(painterResource(iconRes), contentDescription = null, tint = tint)
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f)) {
-                        Text(entry.message, style = MaterialTheme.typography.bodyMedium)
+                        Text(historyMessage(context, entry), style = MaterialTheme.typography.bodyMedium)
                         Text(entry.isoTime, style = MaterialTheme.typography.bodySmall)
                     }
                 }
@@ -819,4 +829,26 @@ private fun openAppMediaFolder(activity: Activity) {
     }
     runCatching { activity.startActivity(intent) }
         .onFailure { activity.startActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)) }
+}
+
+private fun historyMessage(context: Context, entry: AuditLog.Entry): String {
+    return when (entry.eventKey) {
+        AuditLog.EVENT_UNLOCK_FAILED -> context.getString(R.string.history_event_unlock_failed)
+        AuditLog.EVENT_UNLOCK_SUCCESS -> context.getString(R.string.history_event_unlock_success)
+        else -> entry.message
+    }
+}
+
+private fun formatCaptureError(context: Context, error: String?): String {
+    if (error.isNullOrBlank()) return "-"
+    return when {
+        error == CaptureForegroundService.ERROR_CAMERA_PERMISSION_MISSING -> {
+            context.getString(R.string.capture_error_camera_permission_missing)
+        }
+        error.startsWith(CaptureForegroundService.ERROR_VIDEO_FINALIZE_PREFIX) -> {
+            val code = error.removePrefix(CaptureForegroundService.ERROR_VIDEO_FINALIZE_PREFIX)
+            context.getString(R.string.capture_error_video_finalize, code)
+        }
+        else -> error
+    }
 }
