@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Privacy policy for Unlock Capture / EntsperrWächter" />
+    <title>Privacy Policy - Unlock Capture</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --border: rgba(127, 127, 127, 0.35);
+        --muted-bg: rgba(127, 127, 127, 0.07);
+        --muted-border: rgba(127, 127, 127, 0.25);
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 24px;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      h1 { margin-top: 0; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      .lang-switch,
+      .box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: var(--muted-bg);
+      }
+      .lang-switch {
+        display: inline-flex;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .lang-switch a {
+        color: inherit;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .lang-switch a[aria-current="page"] {
+        text-decoration: underline;
+      }
+      ul { padding-left: 20px; }
+      hr {
+        border: 0;
+        border-top: 1px solid var(--muted-border);
+        margin: 24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="lang-switch" aria-label="Language switcher">
+        <a href="../">Deutsch</a>
+        <a href="./" aria-current="page">English</a>
+      </nav>
+
+      <h1>Privacy Policy - Unlock Capture</h1>
+      <p><strong>Last updated:</strong> June 3, 2026</p>
+
+      <div class="box">
+        <p><strong>Summary:</strong> Unlock Capture processes camera and system events to log unlock attempts and optionally create photos or short videos. The app sends <strong>no data</strong> to a server. Content is stored <strong>locally on the device</strong>.</p>
+      </div>
+
+      <h2>1. Controller</h2>
+      <p>This app is intended for use on your own devices. If you publish it, please provide your contact details here as required by Google Play Console policies.</p>
+
+      <h2>2. What the app does</h2>
+      <p>Unlock Capture helps trace unknown access attempts on a device. When an unlock attempt is detected, for example through an incorrect security code or, depending on the device, a successful unlock event, the app can depending on settings:</p>
+      <ul>
+        <li>log an event in the internal history,</li>
+        <li>and/or automatically create a front camera recording.</li>
+      </ul>
+      <p>Recording runs through a <strong>foreground service</strong>. Android therefore shows a visible notification.</p>
+
+      <h2>3. What data is processed</h2>
+      <h3>3.1 Camera recordings (optional)</h3>
+      <ul>
+        <li><strong>Photos/videos</strong> from the front camera triggered by specific events.</li>
+        <li>Stored locally on the device, for example in <code>Pictures/UnlockCapture</code> and <code>Movies/UnlockCapture</code>.</li>
+      </ul>
+
+      <h3>3.2 Event log (history/audit log)</h3>
+      <ul>
+        <li>Time and type of an unlock event, depending on app settings and device support.</li>
+        <li>This log is stored locally in the app and can be cleaned up automatically.</li>
+      </ul>
+
+      <h3>3.3 Integrity data (hash)</h3>
+      <p>For recordings, the app may store a cryptographic hash (SHA-256) to detect later whether a file is missing. The hash is stored locally.</p>
+
+      <h2>4. Data sharing</h2>
+      <p><strong>No sharing.</strong> Unlock Capture does not transmit data to third parties and does not use cloud services. There is no login, no account, and no advertising.</p>
+
+      <h2>5. Permissions</h2>
+      <ul>
+        <li><strong>Camera</strong>: to create photos and videos.</li>
+        <li><strong>Notifications</strong>: required for the visible foreground-service notification.</li>
+        <li><strong>Media access (read permissions)</strong>: to display previously stored recordings in the app.</li>
+        <li><strong>Device admin</strong> (if enabled): to detect certain unlock-related events.</li>
+        <li><strong>Biometrics/device credential</strong> (optional): to protect app access using fingerprint, face unlock, or PIN.</li>
+      </ul>
+
+      <h2>6. Retention and deletion</h2>
+      <ul>
+        <li>Recordings remain on the device until they are deleted by the device owner.</li>
+        <li>Logs and integrity data can be automatically limited or cleaned up inside the app, depending on app version and settings.</li>
+      </ul>
+
+      <h2>7. Security</h2>
+      <ul>
+        <li>Local storage on the device.</li>
+        <li>Optional app access protection via biometrics or PIN.</li>
+        <li>Integrity checks using SHA-256 hashes to detect missing files.</li>
+      </ul>
+
+      <h2>8. Notes on lawful use</h2>
+      <p>Please use the app only on your own devices and only with the device owner’s consent. Follow applicable law, especially privacy and personality rights.</p>
+
+      <hr />
+      <p><strong>Contact:</strong> <a href="mailto:__PRIVACY_CONTACT_EMAIL__">__PRIVACY_CONTACT_EMAIL__</a></p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+name: Privacy Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/privacy-pages.yml"
+      - "assets/privacy.html"
+      - "assets/privacy.en.html"
+      - "scripts/build-privacy-pages.ps1"
+      - "scripts/build-privacy-pages.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PRIVACY_CONTACT_EMAIL: ${{ vars.PRIVACY_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Validate contact variable
+        shell: bash
+        run: |
+          if [ -z "${PRIVACY_CONTACT_EMAIL}" ]; then
+            echo "Missing repository variable PRIVACY_CONTACT_EMAIL." >&2
+            exit 1
+          fi
+
+      - name: Build privacy pages
+        shell: bash
+        run: ./scripts/build-privacy-pages.sh "${PRIVACY_CONTACT_EMAIL}" pages-dist
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./pages-dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Datenschutzerklärung für EntsperrWächter / Unlock Capture" />
+    <title>Datenschutzerklärung - EntsperrWächter</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --border: rgba(127, 127, 127, 0.35);
+        --muted-bg: rgba(127, 127, 127, 0.07);
+        --muted-border: rgba(127, 127, 127, 0.25);
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 24px;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      h1 { margin-top: 0; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      .lang-switch,
+      .box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: var(--muted-bg);
+      }
+      .lang-switch {
+        display: inline-flex;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .lang-switch a {
+        color: inherit;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .lang-switch a[aria-current="page"] {
+        text-decoration: underline;
+      }
+      ul { padding-left: 20px; }
+      hr {
+        border: 0;
+        border-top: 1px solid var(--muted-border);
+        margin: 24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="lang-switch" aria-label="Sprachauswahl">
+        <a href="./" aria-current="page">Deutsch</a>
+        <a href="./en/">English</a>
+      </nav>
+
+      <h1>Datenschutzerklärung - EntsperrWächter</h1>
+      <p><strong>Stand:</strong> 3. Juni 2026</p>
+
+      <div class="box">
+        <p><strong>Kurzfassung:</strong> EntsperrWächter verarbeitet Kamera- und Systemereignisse, um Entsperrversuche zu protokollieren und optional Fotos oder kurze Videos zu erstellen. Die App sendet <strong>keine Daten</strong> an einen Server. Inhalte werden <strong>lokal auf dem Gerät</strong> gespeichert.</p>
+      </div>
+
+      <h2>1. Verantwortlicher</h2>
+      <p>Diese App ist für die Nutzung auf eigenen Geräten vorgesehen. Wenn du sie veröffentlichst, ergänze hier bitte deine Kontaktdaten wie in der Google Play Console erforderlich.</p>
+
+      <h2>2. Was die App macht</h2>
+      <p>EntsperrWächter hilft dabei, unbekannte Zugriffe auf ein Gerät nachzuvollziehen. Wenn ein Entsperrversuch erkannt wird, etwa durch einen falschen Sicherheitscode oder je nach Gerät auch durch einen erfolgreichen Entsperrvorgang, kann die App je nach Einstellung:</p>
+      <ul>
+        <li>ein Ereignis im internen Verlauf protokollieren,</li>
+        <li>und/oder automatisch eine Aufnahme mit der Frontkamera erstellen.</li>
+      </ul>
+      <p>Die Aufnahme erfolgt über einen <strong>Foreground Service</strong>. Android zeigt dabei eine sichtbare Benachrichtigung.</p>
+
+      <h2>3. Welche Daten verarbeitet werden</h2>
+      <h3>3.1 Kamera-Aufnahmen (optional)</h3>
+      <ul>
+        <li><strong>Fotos/Videos</strong> der Frontkamera, die bei bestimmten Ereignissen ausgelöst werden.</li>
+        <li>Speicherung lokal im Gerätespeicher, zum Beispiel unter <code>Pictures/UnlockCapture</code> und <code>Movies/UnlockCapture</code>.</li>
+      </ul>
+
+      <h3>3.2 Ereignisprotokoll (Verlauf/Audit-Log)</h3>
+      <ul>
+        <li>Zeitpunkt und Art eines Entsperrereignisses, abhängig von Einstellungen und Gerätesupport.</li>
+        <li>Dieses Protokoll wird lokal in der App gespeichert und kann automatisiert bereinigt werden.</li>
+      </ul>
+
+      <h3>3.3 Integritätsdaten (Hash)</h3>
+      <p>Für Aufnahmen kann die App einen kryptografischen Hashwert (SHA-256) speichern, um später zu erkennen, ob eine Datei fehlt. Der Hash wird lokal gespeichert.</p>
+
+      <h2>4. Datenweitergabe</h2>
+      <p><strong>Keine Weitergabe.</strong> EntsperrWächter überträgt keine Daten an Dritte und nutzt keine Cloud-Dienste. Es gibt keine Anmeldung, kein Konto und keine Werbung.</p>
+
+      <h2>5. Berechtigungen</h2>
+      <ul>
+        <li><strong>Kamera</strong>: zum Erstellen von Fotos und Videos.</li>
+        <li><strong>Benachrichtigungen</strong>: erforderlich für die sichtbare Foreground-Service-Benachrichtigung.</li>
+        <li><strong>Medienzugriff (Leserechte)</strong>: zum Anzeigen bereits gespeicherter Aufnahmen in der App.</li>
+        <li><strong>Geräteadministrator</strong> (falls aktiviert): um bestimmte Entsperr-Ereignisse zu erkennen.</li>
+        <li><strong>Biometrie/Device Credential</strong> (optional): um den Zugriff auf die App per Fingerabdruck, Face Unlock oder PIN zu schützen.</li>
+      </ul>
+
+      <h2>6. Speicherdauer und Löschung</h2>
+      <ul>
+        <li>Aufnahmen verbleiben auf dem Gerät, bis sie vom Gerätebesitzer gelöscht werden.</li>
+        <li>Protokolle und Integritätsdaten können innerhalb der App automatisch begrenzt oder bereinigt werden, abhängig von App-Version und Einstellungen.</li>
+      </ul>
+
+      <h2>7. Sicherheit</h2>
+      <ul>
+        <li>Lokale Speicherung auf dem Gerät.</li>
+        <li>Optionaler App-Zugriffsschutz per Biometrie oder PIN.</li>
+        <li>Integritätsprüfung über Hashwerte (SHA-256) zur Erkennung fehlender Dateien.</li>
+      </ul>
+
+      <h2>8. Hinweise zur rechtmäßigen Nutzung</h2>
+      <p>Bitte nutze die App nur auf eigenen Geräten und nur mit Zustimmung des Gerätebesitzers. Beachte geltendes Recht, insbesondere Datenschutz- und Persönlichkeitsrechte.</p>
+
+      <hr />
+      <p><strong>Kontakt:</strong> <a href="mailto:__PRIVACY_CONTACT_EMAIL__">__PRIVACY_CONTACT_EMAIL__</a></p>
+    </main>
+  </body>
+</html>
