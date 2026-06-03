@@ -36,9 +36,9 @@ jobs:
       - name: Run Android lint
         shell: bash
         run: |
-          bash ./gradlew --no-daemon lintDebug -Dorg.gradle.java.home="${JAVA_HOME}"
+          bash ./gradlew --no-daemon lint -Dorg.gradle.java.home="${JAVA_HOME}"
 
-      - name: Build debug app
+      - name: Build app
         shell: bash
         run: |
-          bash ./gradlew --no-daemon assembleDebug -Dorg.gradle.java.home="${JAVA_HOME}"
+          bash ./gradlew --no-daemon build -Dorg.gradle.java.home="${JAVA_HOME}"
