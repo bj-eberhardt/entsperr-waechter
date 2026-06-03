@@ -144,7 +144,7 @@ class CaptureForegroundService : Service(), LifecycleOwner {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         ).build()
-        AppLog.i("Capture", "Photo URI=${options.saveCollection}/$name")
+        AppLog.i("Capture", "Photo output name=$name")
 
         imageCapture.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
             override fun onError(exception: ImageCaptureException) {
