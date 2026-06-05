@@ -53,10 +53,7 @@ import de.eberhardt.unlockcapture.R
 import de.eberhardt.unlockcapture.capture.CaptureForegroundService
 import de.eberhardt.unlockcapture.capture.CaptureTrigger
 import de.eberhardt.unlockcapture.security.BiometricGate
-import de.eberhardt.unlockcapture.settings.CaptureMode
 import de.eberhardt.unlockcapture.settings.CaptureReason
-import de.eberhardt.unlockcapture.settings.SettingsRepository
-import de.eberhardt.unlockcapture.settings.UnlockLoggingMode
 import de.eberhardt.unlockcapture.ui.browse.BrowseScreen
 import de.eberhardt.unlockcapture.ui.history.HistoryScreen
 import de.eberhardt.unlockcapture.ui.settings.HomeScreen
@@ -75,16 +72,10 @@ internal fun AppScreen(
     onRequestNotifications: () -> Unit,
 ) {
     val context = LocalContext.current
-    val settings = remember { SettingsRepository(context.applicationContext) }
-    val mode by settings.captureMode.collectAsStateWithLifecycle(initialValue = CaptureMode.PHOTO)
-    val videoDurationSeconds by settings.videoDurationSeconds.collectAsStateWithLifecycle(initialValue = 4)
-    val unlockLoggingMode by settings.unlockLoggingMode.collectAsStateWithLifecycle(initialValue = UnlockLoggingMode.FAILED_ONLY)
-    val lockEnabled by settings.lockEnabled.collectAsStateWithLifecycle(initialValue = false)
-    val lockTimeoutMs by settings.lockTimeoutMs.collectAsStateWithLifecycle(initialValue = 0L)
-    val lastAuthElapsedMs by settings.lastAuthElapsedMs.collectAsStateWithLifecycle(initialValue = 0L)
-    val failedUnlockWarningEnabled by settings.failedUnlockWarningEnabled.collectAsStateWithLifecycle(initialValue = false)
-    val permissionState by mainViewModel.permissionState.collectAsStateWithLifecycle()
-    val appLockAvailable = remember(context) { BiometricGate.isAvailable(context) }
+    val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
+    val settings = uiState.settings
+    val permissionState = uiState.permissionState
+    val appLockAvailable = uiState.appLockAvailable
     val scope = rememberCoroutineScope()
 
     var tab by remember { mutableStateOf(Tab.SETTINGS) }
@@ -127,14 +118,14 @@ internal fun AppScreen(
     }
 
     suspend fun ensureUnlocked(): Boolean {
-        if (!lockEnabled) return true
+        if (!settings.lockEnabled) return true
         if (!appLockAvailable) {
-            settings.setLockEnabled(false)
+            mainViewModel.setLockEnabled(false)
             return true
         }
-        val timeout = lockTimeoutMs
+        val timeout = settings.lockTimeoutMs
         val now = SystemClock.elapsedRealtime()
-        val last = lastAuthElapsedMs
+        val last = settings.lastAuthElapsedMs
         val needAuth = when (timeout) {
             0L -> true
             else -> (last <= 0L) || (now - last > timeout)
@@ -149,7 +140,7 @@ internal fun AppScreen(
         )
         gateInProgress = false
         if (ok) {
-            settings.setLastAuthElapsedMs(SystemClock.elapsedRealtime())
+            mainViewModel.setLastAuthElapsedMs(SystemClock.elapsedRealtime())
         } else {
             snackbarHostState.showSnackbar(context.getString(R.string.app_lock_failed))
         }
@@ -160,11 +151,11 @@ internal fun AppScreen(
         mainViewModel.refreshPermissions()
     }
 
-    LaunchedEffect(lockEnabled) {
-        if (lockEnabled && appLockAvailable) {
+    LaunchedEffect(settings.lockEnabled, appLockAvailable) {
+        if (settings.lockEnabled && appLockAvailable) {
             ensureUnlocked()
-        } else if (lockEnabled) {
-            settings.setLockEnabled(false)
+        } else if (settings.lockEnabled) {
+            mainViewModel.setLockEnabled(false)
         }
     }
 
@@ -241,21 +232,21 @@ internal fun AppScreen(
                         ) {
                             if (permissionState.cameraOk && permissionState.adminOk) {
                                 HomeScreen(
-                                    mode = mode,
-                                    videoDurationSeconds = videoDurationSeconds,
-                                    onVideoDurationSeconds = { scope.launch { settings.setVideoDurationSeconds(it) } },
-                                    unlockLoggingMode = unlockLoggingMode,
-                                    onUnlockLoggingMode = { scope.launch { settings.setUnlockLoggingMode(it) } },
-                                    failedUnlockWarningEnabled = failedUnlockWarningEnabled,
-                                    onFailedUnlockWarningEnabled = { scope.launch { settings.setFailedUnlockWarningEnabled(it) } },
+                                    mode = settings.captureMode,
+                                    videoDurationSeconds = settings.videoDurationSeconds,
+                                    onVideoDurationSeconds = mainViewModel::setVideoDurationSeconds,
+                                    unlockLoggingMode = settings.unlockLoggingMode,
+                                    onUnlockLoggingMode = mainViewModel::setUnlockLoggingMode,
+                                    failedUnlockWarningEnabled = settings.failedUnlockWarningEnabled,
+                                    onFailedUnlockWarningEnabled = mainViewModel::setFailedUnlockWarningEnabled,
                                     notificationsOk = permissionState.notificationsOk,
                                     onRequestNotifications = onRequestNotifications,
                                     appLockAvailable = appLockAvailable,
-                                    lockEnabled = lockEnabled,
-                                    onLockEnabled = { scope.launch { settings.setLockEnabled(it) } },
-                                    lockTimeoutMs = lockTimeoutMs,
-                                    onLockTimeoutMs = { scope.launch { settings.setLockTimeoutMs(it) } },
-                                    onMode = { scope.launch { settings.setCaptureMode(it) } },
+                                    lockEnabled = settings.lockEnabled,
+                                    onLockEnabled = mainViewModel::setLockEnabled,
+                                    lockTimeoutMs = settings.lockTimeoutMs,
+                                    onLockTimeoutMs = mainViewModel::setLockTimeoutMs,
+                                    onMode = mainViewModel::setCaptureMode,
                                     onTest = { CaptureTrigger.start(context, CaptureReason.MANUAL_TEST) },
                                     onOpenFolder = { openAppMediaFolder(context as Activity) },
                                 )

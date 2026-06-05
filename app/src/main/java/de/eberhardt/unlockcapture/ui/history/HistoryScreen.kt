@@ -33,6 +33,7 @@ import de.eberhardt.unlockcapture.ui.components.adaptiveActionButtonWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 internal fun HistoryScreen() {
@@ -51,8 +52,10 @@ internal fun HistoryScreen() {
                 val result = withContext(Dispatchers.IO) { AuditLog.readAndVerify(context.applicationContext) }
                 items = result.entries.filter { it.type == "UNLOCK" }.sortedByDescending { it.tsMs }
                 verification = result.verification
-            } catch (t: Throwable) {
-                error = t.message ?: t.javaClass.simpleName
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (exception: Exception) {
+                error = exception.message ?: exception.javaClass.simpleName
             } finally {
                 loading = false
             }

@@ -47,6 +47,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 internal fun BrowseScreen(
@@ -86,8 +87,10 @@ internal fun BrowseScreen(
                     }.map { BrowseEntry.Missing(it) }
                 }
                 entries = (presentEntries + missingEntries).sortedByDescending { it.tsMs }
-            } catch (t: Throwable) {
-                error = t.message ?: t.javaClass.simpleName
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (exception: Exception) {
+                error = exception.message ?: exception.javaClass.simpleName
             } finally {
                 loading = false
             }

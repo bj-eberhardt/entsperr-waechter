@@ -5,10 +5,7 @@ import android.content.Context
 import android.content.Intent
 import de.eberhardt.unlockcapture.events.UnlockEventHandler
 import de.eberhardt.unlockcapture.util.AppLog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import de.eberhardt.unlockcapture.util.BroadcastAsync
 
 class UserPresentReceiver : BroadcastReceiver() {
     override fun onReceive(
@@ -18,18 +15,12 @@ class UserPresentReceiver : BroadcastReceiver() {
         AppLog.i("Boot", "onReceive action=${intent.action}")
         if (intent.action == Intent.ACTION_USER_PRESENT) {
             AppLog.i("Boot", "Trigger capture (reason=USER_PRESENT)")
-            val pendingResult = goAsync()
-            scope.launch {
-                try {
-                    UnlockEventHandler(context).onUserPresent()
-                } finally {
-                    pendingResult.finish()
-                }
+            BroadcastAsync.launch(
+                pendingResult = goAsync(),
+                tag = "Boot",
+            ) {
+                UnlockEventHandler(context).onUserPresent()
             }
         }
-    }
-
-    companion object {
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     }
 }

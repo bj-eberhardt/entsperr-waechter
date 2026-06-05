@@ -5,10 +5,7 @@ import android.content.Context
 import android.content.Intent
 import de.eberhardt.unlockcapture.events.UnlockEventHandler
 import de.eberhardt.unlockcapture.util.AppLog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import de.eberhardt.unlockcapture.util.BroadcastAsync
 
 class UnlockDeviceAdminReceiver : DeviceAdminReceiver() {
     override fun onReceive(
@@ -56,17 +53,10 @@ class UnlockDeviceAdminReceiver : DeviceAdminReceiver() {
     }
 
     private fun launchAsync(block: suspend () -> Unit) {
-        val pendingResult = goAsync()
-        scope.launch {
-            try {
-                block()
-            } finally {
-                pendingResult.finish()
-            }
-        }
-    }
-
-    companion object {
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        BroadcastAsync.launch(
+            pendingResult = goAsync(),
+            tag = "Admin",
+            block = block,
+        )
     }
 }

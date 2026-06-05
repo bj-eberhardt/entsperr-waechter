@@ -36,9 +36,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.Executors
+import kotlin.coroutines.cancellation.CancellationException
 
 class CaptureForegroundService :
     Service(),
@@ -181,13 +183,15 @@ class CaptureForegroundService :
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     AppLog.i("Capture", "Photo saved: uri=${outputFileResults.savedUri}")
-                    outputFileResults.savedUri?.let { uri ->
-                        scope.launch(Dispatchers.IO) {
-                            CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "photo")
+                    scope.launch {
+                        outputFileResults.savedUri?.let { uri ->
+                            withContext(Dispatchers.IO) {
+                                CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "photo")
+                            }
                         }
+                        statusBroadcaster.finished(reason, success = true)
+                        stopSelf()
                     }
-                    statusBroadcaster.finished(reason, success = true)
-                    stopSelf()
                 }
             },
         )
@@ -237,18 +241,21 @@ class CaptureForegroundService :
                             AppLog.i("Capture", "Video finalize error=${event.error} cause=${event.cause}")
                             if (event.error == VideoRecordEvent.Finalize.ERROR_NONE) {
                                 val uri = event.outputResults.outputUri
-                                scope.launch(Dispatchers.IO) {
-                                    CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "video")
+                                scope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "video")
+                                    }
+                                    statusBroadcaster.finished(reason, success = true)
+                                    stopSelf()
                                 }
-                                statusBroadcaster.finished(reason, success = true)
                             } else {
                                 statusBroadcaster.finished(
                                     reason,
                                     success = false,
                                     error = ERROR_VIDEO_FINALIZE_PREFIX + event.error,
                                 )
+                                stopSelf()
                             }
-                            stopSelf()
                         }
                     }
 
@@ -257,8 +264,10 @@ class CaptureForegroundService :
             recording.stop()
             delay(1000)
             provider.unbindAll()
-        } catch (t: Throwable) {
-            AppLog.e("Capture", "Video recording failed; falling back to photo. ${t.message}", t)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (exception: Exception) {
+            AppLog.e("Capture", "Video recording failed; falling back to photo. ${exception.message}", exception)
             // If photo fallback succeeds, it will send FINISHED itself.
             takePhoto(reason)
         }
