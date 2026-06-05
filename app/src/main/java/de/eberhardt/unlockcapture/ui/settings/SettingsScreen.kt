@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import de.eberhardt.unlockcapture.R
 import de.eberhardt.unlockcapture.settings.CaptureMode
 import de.eberhardt.unlockcapture.settings.UnlockLoggingMode
+import de.eberhardt.unlockcapture.ui.components.CompactModeRow
 import de.eberhardt.unlockcapture.ui.components.ModeRow
 import de.eberhardt.unlockcapture.ui.components.RequirementCard
 import de.eberhardt.unlockcapture.ui.components.SettingsGroupTitle
@@ -82,6 +83,7 @@ internal fun HomeScreen(
     onFailedUnlockWarningEnabled: (Boolean) -> Unit,
     notificationsOk: Boolean,
     onRequestNotifications: () -> Unit,
+    appLockAvailable: Boolean,
     lockEnabled: Boolean,
     onLockEnabled: (Boolean) -> Unit,
     lockTimeoutMs: Long,
@@ -144,22 +146,26 @@ internal fun HomeScreen(
             }
         }
     }
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SettingsGroupTitle(stringResource(R.string.app_lock_title))
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    stringResource(R.string.app_lock_enabled),
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Switch(checked = lockEnabled, onCheckedChange = onLockEnabled)
-            }
-            if (lockEnabled) {
-                Text(stringResource(R.string.app_lock_timeout_title), style = MaterialTheme.typography.titleSmall)
-                ModeRow(stringResource(R.string.app_lock_timeout_immediate), 0L, lockTimeoutMs, onLockTimeoutMs)
-                ModeRow(stringResource(R.string.app_lock_timeout_30s), 30_000L, lockTimeoutMs, onLockTimeoutMs)
-                ModeRow(stringResource(R.string.app_lock_timeout_5m), 300_000L, lockTimeoutMs, onLockTimeoutMs)
+    if (appLockAvailable) {
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SettingsGroupTitle(stringResource(R.string.app_lock_title))
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.app_lock_enabled),
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Switch(checked = lockEnabled, onCheckedChange = onLockEnabled)
+                }
+                if (lockEnabled) {
+                    Text(stringResource(R.string.app_lock_timeout_title), style = MaterialTheme.typography.labelSmall)
+                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                        CompactModeRow(stringResource(R.string.app_lock_timeout_immediate), 0L, lockTimeoutMs, onLockTimeoutMs)
+                        CompactModeRow(stringResource(R.string.app_lock_timeout_30s), 30_000L, lockTimeoutMs, onLockTimeoutMs)
+                        CompactModeRow(stringResource(R.string.app_lock_timeout_5m), 300_000L, lockTimeoutMs, onLockTimeoutMs)
+                    }
+                }
             }
         }
     }

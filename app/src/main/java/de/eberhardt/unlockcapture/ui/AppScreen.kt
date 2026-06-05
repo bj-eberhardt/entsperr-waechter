@@ -84,6 +84,7 @@ internal fun AppScreen(
     val lastAuthElapsedMs by settings.lastAuthElapsedMs.collectAsStateWithLifecycle(initialValue = 0L)
     val failedUnlockWarningEnabled by settings.failedUnlockWarningEnabled.collectAsStateWithLifecycle(initialValue = false)
     val permissionState by mainViewModel.permissionState.collectAsStateWithLifecycle()
+    val appLockAvailable = remember(context) { BiometricGate.isAvailable(context) }
     val scope = rememberCoroutineScope()
 
     var tab by remember { mutableStateOf(Tab.SETTINGS) }
@@ -127,6 +128,10 @@ internal fun AppScreen(
 
     suspend fun ensureUnlocked(): Boolean {
         if (!lockEnabled) return true
+        if (!appLockAvailable) {
+            settings.setLockEnabled(false)
+            return true
+        }
         val timeout = lockTimeoutMs
         val now = SystemClock.elapsedRealtime()
         val last = lastAuthElapsedMs
@@ -156,8 +161,10 @@ internal fun AppScreen(
     }
 
     LaunchedEffect(lockEnabled) {
-        if (lockEnabled) {
+        if (lockEnabled && appLockAvailable) {
             ensureUnlocked()
+        } else if (lockEnabled) {
+            settings.setLockEnabled(false)
         }
     }
 
@@ -243,6 +250,7 @@ internal fun AppScreen(
                                     onFailedUnlockWarningEnabled = { scope.launch { settings.setFailedUnlockWarningEnabled(it) } },
                                     notificationsOk = permissionState.notificationsOk,
                                     onRequestNotifications = onRequestNotifications,
+                                    appLockAvailable = appLockAvailable,
                                     lockEnabled = lockEnabled,
                                     onLockEnabled = { scope.launch { settings.setLockEnabled(it) } },
                                     lockTimeoutMs = lockTimeoutMs,

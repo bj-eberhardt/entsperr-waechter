@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -53,6 +55,18 @@ internal fun ModeRow(label: String, value: Long, selected: Long, onMode: (Long) 
     Row(verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = value == selected, onClick = { onMode(value) })
         Text(label, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+internal fun CompactModeRow(label: String, value: Long, selected: Long, onMode: (Long) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(34.dp)) {
+        RadioButton(
+            selected = value == selected,
+            onClick = { onMode(value) },
+            modifier = Modifier.size(34.dp),
+        )
+        Text(label, style = MaterialTheme.typography.bodySmall)
     }
 }
 
