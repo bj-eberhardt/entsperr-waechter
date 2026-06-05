@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:IntegrityStore.kt$IntegrityStore$uri.isBlank() || sha.isBlank() || size &lt; 0L || ts &lt; 0L</ID>
+    <ID>CyclomaticComplexMethod:AppScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AppScreen( mainViewModel: MainViewModel, onRequestPermissions: () -&gt; Unit, onOpenDeviceAdmin: () -&gt; Unit, onOpenNotificationSettings: () -&gt; Unit, onRequestNotifications: () -&gt; Unit, )</ID>
+    <ID>CyclomaticComplexMethod:BrowseScreen.kt$@Composable internal fun BrowseScreen( canBrowse: Boolean, onRequestPermissions: () -&gt; Unit, )</ID>
+    <ID>LongMethod:AppScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AppScreen( mainViewModel: MainViewModel, onRequestPermissions: () -&gt; Unit, onOpenDeviceAdmin: () -&gt; Unit, onOpenNotificationSettings: () -&gt; Unit, onRequestNotifications: () -&gt; Unit, )</ID>
+    <ID>LongParameterList:SettingsScreen.kt$( mode: CaptureMode, videoDurationSeconds: Int, onVideoDurationSeconds: (Int) -&gt; Unit, unlockLoggingMode: UnlockLoggingMode, onUnlockLoggingMode: (UnlockLoggingMode) -&gt; Unit, failedUnlockWarningEnabled: Boolean, onFailedUnlockWarningEnabled: (Boolean) -&gt; Unit, notificationsOk: Boolean, onRequestNotifications: () -&gt; Unit, lockEnabled: Boolean, onLockEnabled: (Boolean) -&gt; Unit, lockTimeoutMs: Long, onLockTimeoutMs: (Long) -&gt; Unit, onMode: (CaptureMode) -&gt; Unit, onTest: () -&gt; Unit, onOpenFolder: () -&gt; Unit, )</ID>
+    <ID>ReturnCount:AppScreen.kt$&lt;no name provided&gt;$override fun onReceive(ctx: android.content.Context, intent: Intent)</ID>
+    <ID>ReturnCount:AppScreen.kt$suspend fun ensureUnlocked(): Boolean</ID>
+    <ID>ReturnCount:AuditLog.kt$AuditLog$fun readAndVerify(context: Context): ReadResult</ID>
+    <ID>ReturnCount:AuditLog.kt$AuditLog$private fun getOrCreateKey(context: Context): SecretKey</ID>
+    <ID>ReturnCount:AuditLog.kt$AuditLog$private fun readVerifiedRecords( file: File, key: SecretKey, ): VerifiedRecords</ID>
+    <ID>TooGenericExceptionCaught:BrowseScreen.kt$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:CaptureForegroundService.kt$CaptureForegroundService$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:HistoryScreen.kt$t: Throwable</ID>
+  </CurrentIssues>
+</SmellBaseline>
