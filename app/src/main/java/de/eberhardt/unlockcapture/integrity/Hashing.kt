@@ -3,7 +3,7 @@ package de.eberhardt.unlockcapture.integrity
 import java.io.InputStream
 import java.security.MessageDigest
 
-object Hashing {
+class Hashing {
     fun sha256Hex(input: InputStream): String {
         input.use { stream ->
             val digest = MessageDigest.getInstance("SHA-256")
@@ -17,4 +17,3 @@ object Hashing {
         }
     }
 }
-

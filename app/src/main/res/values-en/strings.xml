@@ -50,12 +50,13 @@
     <string name="unlock_logging_hint">Controls whether successful unlocks are also logged and trigger a capture.</string>
     <string name="failed_unlock_warning_setting_title">Warning on incorrect code</string>
     <string name="failed_unlock_warning_setting_desc">Shows a notification when an incorrect security code was entered.</string>
+    <string name="notifications_group_title">Notifications</string>
     <string name="home_note">Note: Modern Android versions show a notification while the camera is recording. This is intentional and important for transparency.</string>
     <string name="test_capture_running">Test capture running …</string>
     <string name="test_capture_finished">Test capture finished.</string>
     <string name="test_capture_finished_error">Test capture finished (error: %1$s).</string>
 
-    <string name="app_lock_title">Lock app</string>
+    <string name="app_lock_title">Security</string>
     <string name="app_lock_enabled">Protect app access</string>
     <string name="app_lock_timeout_title">Timeout</string>
     <string name="app_lock_timeout_immediate">Immediately</string>
