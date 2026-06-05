@@ -18,7 +18,9 @@ object BroadcastAsync {
                 block()
             } catch (cancellation: CancellationException) {
                 throw cancellation
-            } catch (exception: Exception) {
+            } catch (exception: IllegalStateException) {
+                AppLog.e(tag, "Async broadcast handling failed", exception)
+            } catch (exception: SecurityException) {
                 AppLog.e(tag, "Async broadcast handling failed", exception)
             } finally {
                 pendingResult.finish()

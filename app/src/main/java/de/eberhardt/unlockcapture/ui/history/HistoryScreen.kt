@@ -33,11 +33,13 @@ import de.eberhardt.unlockcapture.ui.components.adaptiveActionButtonWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 internal fun HistoryScreen() {
     val context = LocalContext.current
+    val auditLog = remember { AuditLog() }
     val scope = rememberCoroutineScope()
     var items by remember { mutableStateOf<List<AuditLog.Entry>>(emptyList()) }
     var verification by remember { mutableStateOf<AuditLogVerification>(AuditLogVerification.Empty) }
@@ -49,12 +51,16 @@ internal fun HistoryScreen() {
             loading = true
             error = null
             try {
-                val result = withContext(Dispatchers.IO) { AuditLog.readAndVerify(context.applicationContext) }
+                val result = withContext(Dispatchers.IO) { auditLog.readAndVerify(context.applicationContext) }
                 items = result.entries.filter { it.type == "UNLOCK" }.sortedByDescending { it.tsMs }
                 verification = result.verification
             } catch (cancellation: CancellationException) {
                 throw cancellation
-            } catch (exception: Exception) {
+            } catch (exception: IOException) {
+                error = exception.message ?: exception.javaClass.simpleName
+            } catch (exception: IllegalStateException) {
+                error = exception.message ?: exception.javaClass.simpleName
+            } catch (exception: SecurityException) {
                 error = exception.message ?: exception.javaClass.simpleName
             } finally {
                 loading = false
@@ -64,46 +70,71 @@ internal fun HistoryScreen() {
 
     LaunchedEffect(Unit) { refresh() }
 
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = { refresh() }, modifier = Modifier.adaptiveActionButtonWidth()) {
-            Text(if (loading) stringResource(R.string.loading_ellipsis) else stringResource(R.string.action_refresh))
-        }
-    }
-
-    if (verification is AuditLogVerification.Tampered) {
-        Text(stringResource(R.string.history_tamper_warning), color = MaterialTheme.colorScheme.error)
-    }
-
-    if (error != null) {
-        Text(stringResource(R.string.history_error_prefix, error ?: ""))
-    }
-
-    if (items.isEmpty() && !loading) {
-        Text(stringResource(R.string.history_empty_title), style = MaterialTheme.typography.titleLarge)
-        Text(stringResource(R.string.history_empty_body))
-        return
-    }
+    HistoryRefreshButton(loading = loading, onRefresh = { refresh() })
+    HistoryMessages(verification = verification, error = error)
+    if (HistoryEmptyState(items = items, loading = loading)) return
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         items(items.size) { index ->
-            val entry = items[index]
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    Modifier.padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    val isFail = entry.result == "FAIL"
-                    val iconRes =
-                        if (isFail) android.R.drawable.ic_delete else android.R.drawable.checkbox_on_background
-                    val tint =
-                        if (isFail) MaterialTheme.colorScheme.error else Color(0xFF2E7D32)
-                    Icon(painterResource(iconRes), contentDescription = null, tint = tint)
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f)) {
-                        Text(historyMessage(context, entry), style = MaterialTheme.typography.bodyMedium)
-                        Text(entry.isoTime, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+            HistoryEntryCard(entry = items[index])
+        }
+    }
+}
+
+@Composable
+private fun HistoryRefreshButton(
+    loading: Boolean,
+    onRefresh: () -> Unit,
+) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Button(onClick = onRefresh, modifier = Modifier.adaptiveActionButtonWidth()) {
+            Text(if (loading) stringResource(R.string.loading_ellipsis) else stringResource(R.string.action_refresh))
+        }
+    }
+}
+
+@Composable
+private fun HistoryMessages(
+    verification: AuditLogVerification,
+    error: String?,
+) {
+    if (verification is AuditLogVerification.Tampered) {
+        Text(stringResource(R.string.history_tamper_warning), color = MaterialTheme.colorScheme.error)
+    }
+    if (error != null) {
+        Text(stringResource(R.string.history_error_prefix, error))
+    }
+}
+
+@Composable
+private fun HistoryEmptyState(
+    items: List<AuditLog.Entry>,
+    loading: Boolean,
+): Boolean {
+    if (items.isNotEmpty() || loading) return false
+    Text(stringResource(R.string.history_empty_title), style = MaterialTheme.typography.titleLarge)
+    Text(stringResource(R.string.history_empty_body))
+    return true
+}
+
+@Composable
+private fun HistoryEntryCard(entry: AuditLog.Entry) {
+    val context = LocalContext.current
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val isFail = entry.result == "FAIL"
+            val iconRes =
+                if (isFail) android.R.drawable.ic_delete else android.R.drawable.checkbox_on_background
+            val tint =
+                if (isFail) MaterialTheme.colorScheme.error else Color(0xFF2E7D32)
+            Icon(painterResource(iconRes), contentDescription = null, tint = tint)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f)) {
+                Text(historyMessage(context, entry), style = MaterialTheme.typography.bodyMedium)
+                Text(entry.isoTime, style = MaterialTheme.typography.bodySmall)
             }
         }
     }

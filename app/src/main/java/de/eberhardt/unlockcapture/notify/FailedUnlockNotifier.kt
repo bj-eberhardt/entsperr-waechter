@@ -12,9 +12,11 @@ import de.eberhardt.unlockcapture.settings.FailedUnlockWarningStats
 import de.eberhardt.unlockcapture.util.AppLog
 import de.eberhardt.unlockcapture.util.PermissionUtils
 
-object FailedUnlockNotifier {
-    const val CHANNEL_ID = "failed_unlock_warning"
-    private const val NOTIFICATION_ID = 2001
+class FailedUnlockNotifier {
+    companion object {
+        const val CHANNEL_ID = "failed_unlock_warning"
+        private const val NOTIFICATION_ID = 2001
+    }
 
     @SuppressLint("MissingPermission")
     fun show(

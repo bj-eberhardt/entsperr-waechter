@@ -57,6 +57,7 @@ import de.eberhardt.unlockcapture.settings.CaptureReason
 import de.eberhardt.unlockcapture.ui.browse.BrowseScreen
 import de.eberhardt.unlockcapture.ui.history.HistoryScreen
 import de.eberhardt.unlockcapture.ui.settings.HomeScreen
+import de.eberhardt.unlockcapture.ui.settings.HomeScreenActions
 import de.eberhardt.unlockcapture.ui.settings.SetupScreen
 import kotlinx.coroutines.launch
 
@@ -232,23 +233,20 @@ internal fun AppScreen(
                         ) {
                             if (permissionState.cameraOk && permissionState.adminOk) {
                                 HomeScreen(
-                                    mode = settings.captureMode,
-                                    videoDurationSeconds = settings.videoDurationSeconds,
-                                    onVideoDurationSeconds = mainViewModel::setVideoDurationSeconds,
-                                    unlockLoggingMode = settings.unlockLoggingMode,
-                                    onUnlockLoggingMode = mainViewModel::setUnlockLoggingMode,
-                                    failedUnlockWarningEnabled = settings.failedUnlockWarningEnabled,
-                                    onFailedUnlockWarningEnabled = mainViewModel::setFailedUnlockWarningEnabled,
+                                    settings = settings,
                                     notificationsOk = permissionState.notificationsOk,
-                                    onRequestNotifications = onRequestNotifications,
                                     appLockAvailable = appLockAvailable,
-                                    lockEnabled = settings.lockEnabled,
-                                    onLockEnabled = mainViewModel::setLockEnabled,
-                                    lockTimeoutMs = settings.lockTimeoutMs,
-                                    onLockTimeoutMs = mainViewModel::setLockTimeoutMs,
-                                    onMode = mainViewModel::setCaptureMode,
-                                    onTest = { CaptureTrigger.start(context, CaptureReason.MANUAL_TEST) },
-                                    onOpenFolder = { openAppMediaFolder(context as Activity) },
+                                    actions = HomeScreenActions(
+                                        onVideoDurationSeconds = mainViewModel::setVideoDurationSeconds,
+                                        onUnlockLoggingMode = mainViewModel::setUnlockLoggingMode,
+                                        onFailedUnlockWarningEnabled = mainViewModel::setFailedUnlockWarningEnabled,
+                                        onRequestNotifications = onRequestNotifications,
+                                        onLockEnabled = mainViewModel::setLockEnabled,
+                                        onLockTimeoutMs = mainViewModel::setLockTimeoutMs,
+                                        onMode = mainViewModel::setCaptureMode,
+                                        onTest = { CaptureTrigger.start(context, CaptureReason.MANUAL_TEST) },
+                                        onOpenFolder = { openAppMediaFolder(context as Activity) },
+                                    ),
                                 )
                             } else {
                                 SetupScreen(

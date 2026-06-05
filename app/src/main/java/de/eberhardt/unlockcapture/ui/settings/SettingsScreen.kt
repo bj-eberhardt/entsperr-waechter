@@ -18,6 +18,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.eberhardt.unlockcapture.R
+import de.eberhardt.unlockcapture.settings.AppSettings
 import de.eberhardt.unlockcapture.settings.CaptureMode
 import de.eberhardt.unlockcapture.settings.UnlockLoggingMode
 import de.eberhardt.unlockcapture.ui.components.CompactModeRow
@@ -74,44 +75,31 @@ internal fun SetupScreen(
 
 @Composable
 internal fun HomeScreen(
-    mode: CaptureMode,
-    videoDurationSeconds: Int,
-    onVideoDurationSeconds: (Int) -> Unit,
-    unlockLoggingMode: UnlockLoggingMode,
-    onUnlockLoggingMode: (UnlockLoggingMode) -> Unit,
-    failedUnlockWarningEnabled: Boolean,
-    onFailedUnlockWarningEnabled: (Boolean) -> Unit,
+    settings: AppSettings,
     notificationsOk: Boolean,
-    onRequestNotifications: () -> Unit,
     appLockAvailable: Boolean,
-    lockEnabled: Boolean,
-    onLockEnabled: (Boolean) -> Unit,
-    lockTimeoutMs: Long,
-    onLockTimeoutMs: (Long) -> Unit,
-    onMode: (CaptureMode) -> Unit,
-    onTest: () -> Unit,
-    onOpenFolder: () -> Unit,
+    actions: HomeScreenActions,
 ) {
     Text(stringResource(R.string.home_status_title), style = MaterialTheme.typography.titleLarge)
     Text(stringResource(R.string.home_status_body))
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             SettingsGroupTitle(stringResource(R.string.capture_mode_title))
-            ModeRow(stringResource(R.string.capture_mode_photo), CaptureMode.PHOTO, mode, onMode)
-            ModeRow(stringResource(R.string.capture_mode_video), CaptureMode.VIDEO_4_SECONDS, mode, onMode)
+            ModeRow(stringResource(R.string.capture_mode_photo), CaptureMode.PHOTO, settings.captureMode, actions.onMode)
+            ModeRow(stringResource(R.string.capture_mode_video), CaptureMode.VIDEO_4_SECONDS, settings.captureMode, actions.onMode)
         }
     }
-    if (mode == CaptureMode.VIDEO_4_SECONDS) {
+    if (settings.captureMode == CaptureMode.VIDEO_4_SECONDS) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SettingsGroupTitle(stringResource(R.string.video_duration_title))
                 Text(
-                    pluralStringResource(R.plurals.video_duration_seconds, videoDurationSeconds, videoDurationSeconds),
+                    pluralStringResource(R.plurals.video_duration_seconds, settings.videoDurationSeconds, settings.videoDurationSeconds),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Slider(
-                    value = videoDurationSeconds.toFloat(),
-                    onValueChange = { onVideoDurationSeconds(it.toInt()) },
+                    value = settings.videoDurationSeconds.toFloat(),
+                    onValueChange = { actions.onVideoDurationSeconds(it.toInt()) },
                     valueRange = 3f..20f,
                     steps = 16,
                 )
@@ -122,8 +110,8 @@ internal fun HomeScreen(
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SettingsGroupTitle(stringResource(R.string.unlock_logging_title))
-            ModeRow(stringResource(R.string.unlock_logging_failed_only), UnlockLoggingMode.FAILED_ONLY, unlockLoggingMode, onUnlockLoggingMode)
-            ModeRow(stringResource(R.string.unlock_logging_all), UnlockLoggingMode.ALL, unlockLoggingMode, onUnlockLoggingMode)
+            ModeRow(stringResource(R.string.unlock_logging_failed_only), UnlockLoggingMode.FAILED_ONLY, settings.unlockLoggingMode, actions.onUnlockLoggingMode)
+            ModeRow(stringResource(R.string.unlock_logging_all), UnlockLoggingMode.ALL, settings.unlockLoggingMode, actions.onUnlockLoggingMode)
             Text(stringResource(R.string.unlock_logging_hint), style = MaterialTheme.typography.labelSmall)
         }
     }
@@ -136,11 +124,11 @@ internal fun HomeScreen(
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                Switch(checked = failedUnlockWarningEnabled, onCheckedChange = onFailedUnlockWarningEnabled)
+                Switch(checked = settings.failedUnlockWarningEnabled, onCheckedChange = actions.onFailedUnlockWarningEnabled)
             }
             Text(stringResource(R.string.failed_unlock_warning_setting_desc), style = MaterialTheme.typography.labelSmall)
             if (!notificationsOk) {
-                Button(onClick = onRequestNotifications, modifier = Modifier.adaptiveActionButtonWidth()) {
+                Button(onClick = actions.onRequestNotifications, modifier = Modifier.adaptiveActionButtonWidth()) {
                     Text(stringResource(R.string.action_allow_notifications))
                 }
             }
@@ -156,20 +144,20 @@ internal fun HomeScreen(
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyMedium,
                     )
-                    Switch(checked = lockEnabled, onCheckedChange = onLockEnabled)
+                    Switch(checked = settings.lockEnabled, onCheckedChange = actions.onLockEnabled)
                 }
-                if (lockEnabled) {
+                if (settings.lockEnabled) {
                     Text(stringResource(R.string.app_lock_timeout_title), style = MaterialTheme.typography.labelSmall)
                     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                        CompactModeRow(stringResource(R.string.app_lock_timeout_immediate), 0L, lockTimeoutMs, onLockTimeoutMs)
-                        CompactModeRow(stringResource(R.string.app_lock_timeout_30s), 30_000L, lockTimeoutMs, onLockTimeoutMs)
-                        CompactModeRow(stringResource(R.string.app_lock_timeout_5m), 300_000L, lockTimeoutMs, onLockTimeoutMs)
+                        CompactModeRow(stringResource(R.string.app_lock_timeout_immediate), 0L, settings.lockTimeoutMs, actions.onLockTimeoutMs)
+                        CompactModeRow(stringResource(R.string.app_lock_timeout_30s), 30_000L, settings.lockTimeoutMs, actions.onLockTimeoutMs)
+                        CompactModeRow(stringResource(R.string.app_lock_timeout_5m), 300_000L, settings.lockTimeoutMs, actions.onLockTimeoutMs)
                     }
                 }
             }
         }
     }
-    Button(onClick = onTest, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_start_test_capture)) }
-    Button(onClick = onOpenFolder, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_open_media_folder)) }
+    Button(onClick = actions.onTest, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_start_test_capture)) }
+    Button(onClick = actions.onOpenFolder, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_open_media_folder)) }
     Text(stringResource(R.string.home_note), style = MaterialTheme.typography.labelSmall)
 }

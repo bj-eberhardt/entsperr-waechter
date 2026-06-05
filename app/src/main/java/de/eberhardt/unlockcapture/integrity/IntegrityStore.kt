@@ -5,9 +5,10 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
-object IntegrityStore {
-    private const val FILE_NAME = "integrity.jsonl"
-    private val lock = Any()
+class IntegrityStore {
+    companion object {
+        private const val FILE_NAME = "integrity.jsonl"
+    }
 
     data class Record(
         val uri: String,
@@ -15,6 +16,8 @@ object IntegrityStore {
         val sizeBytes: Long,
         val tsMs: Long,
     )
+
+    private val lock = Any()
 
     fun upsert(
         context: Context,

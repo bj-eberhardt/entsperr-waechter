@@ -44,6 +44,7 @@ import de.eberhardt.unlockcapture.ui.components.adaptiveActionButtonWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,6 +56,7 @@ internal fun BrowseScreen(
     onRequestPermissions: () -> Unit,
 ) {
     val context = LocalContext.current
+    val integrityStore = remember { IntegrityStore() }
     val scope = rememberCoroutineScope()
     var entries by remember { mutableStateOf<List<BrowseEntry>>(emptyList()) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -78,7 +80,7 @@ internal fun BrowseScreen(
                 }
 
                 val missingEntries = withContext(Dispatchers.IO) {
-                    IntegrityStore.list(context.applicationContext).filter { record ->
+                    integrityStore.list(context.applicationContext).filter { record ->
                         if (presentUris.contains(record.uri)) return@filter false
                         val uri = runCatching { Uri.parse(record.uri) }.getOrNull() ?: return@filter true
                         runCatching { context.contentResolver.openInputStream(uri)?.use { true } ?: false }
@@ -89,7 +91,11 @@ internal fun BrowseScreen(
                 entries = (presentEntries + missingEntries).sortedByDescending { it.tsMs }
             } catch (cancellation: CancellationException) {
                 throw cancellation
-            } catch (exception: Exception) {
+            } catch (exception: IOException) {
+                error = exception.message ?: exception.javaClass.simpleName
+            } catch (exception: IllegalStateException) {
+                error = exception.message ?: exception.javaClass.simpleName
+            } catch (exception: SecurityException) {
                 error = exception.message ?: exception.javaClass.simpleName
             } finally {
                 loading = false

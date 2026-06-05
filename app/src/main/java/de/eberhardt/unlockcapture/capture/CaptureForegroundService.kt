@@ -64,6 +64,7 @@ class CaptureForegroundService :
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val cameraExecutor = Executors.newSingleThreadExecutor()
+    private val integrityRecorder = CaptureIntegrityRecorder()
     private lateinit var statusBroadcaster: CaptureStatusBroadcaster
     override val lifecycle: Lifecycle get() = lifecycleRegistry
 
@@ -186,7 +187,7 @@ class CaptureForegroundService :
                     scope.launch {
                         outputFileResults.savedUri?.let { uri ->
                             withContext(Dispatchers.IO) {
-                                CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "photo")
+                                integrityRecorder.record(this@CaptureForegroundService, uri, "photo")
                             }
                         }
                         statusBroadcaster.finished(reason, success = true)
@@ -243,7 +244,7 @@ class CaptureForegroundService :
                                 val uri = event.outputResults.outputUri
                                 scope.launch {
                                     withContext(Dispatchers.IO) {
-                                        CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "video")
+                                        integrityRecorder.record(this@CaptureForegroundService, uri, "video")
                                     }
                                     statusBroadcaster.finished(reason, success = true)
                                     stopSelf()
@@ -266,7 +267,15 @@ class CaptureForegroundService :
             provider.unbindAll()
         } catch (cancellation: CancellationException) {
             throw cancellation
-        } catch (exception: Exception) {
+        } catch (exception: IllegalArgumentException) {
+            AppLog.e("Capture", "Video recording failed; falling back to photo. ${exception.message}", exception)
+            // If photo fallback succeeds, it will send FINISHED itself.
+            takePhoto(reason)
+        } catch (exception: IllegalStateException) {
+            AppLog.e("Capture", "Video recording failed; falling back to photo. ${exception.message}", exception)
+            // If photo fallback succeeds, it will send FINISHED itself.
+            takePhoto(reason)
+        } catch (exception: SecurityException) {
             AppLog.e("Capture", "Video recording failed; falling back to photo. ${exception.message}", exception)
             // If photo fallback succeeds, it will send FINISHED itself.
             takePhoto(reason)

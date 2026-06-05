@@ -19,7 +19,7 @@ import javax.crypto.Mac
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
-object AuditLog {
+class AuditLog {
     private data class Record(
         val ts: Long,
         val type: String,
@@ -42,12 +42,14 @@ object AuditLog {
         val verification: AuditLogVerification,
     )
 
-    private const val KEY_ALIAS = "UnlockCaptureAuditHmac"
-    private const val FILE_NAME = "audit.log"
-    private const val TAMPER_FLAG_NAME = "audit.tampered"
-    private const val RETENTION_MS = 14L * 24 * 60 * 60 * 1000
-    const val EVENT_UNLOCK_FAILED = "unlock_failed"
-    const val EVENT_UNLOCK_SUCCESS = "unlock_success"
+    companion object {
+        private const val KEY_ALIAS = "UnlockCaptureAuditHmac"
+        private const val FILE_NAME = "audit.log"
+        private const val TAMPER_FLAG_NAME = "audit.tampered"
+        private const val RETENTION_MS = 14L * 24 * 60 * 60 * 1000
+        const val EVENT_UNLOCK_FAILED = "unlock_failed"
+        const val EVENT_UNLOCK_SUCCESS = "unlock_success"
+    }
 
     private val lock = Any()
 

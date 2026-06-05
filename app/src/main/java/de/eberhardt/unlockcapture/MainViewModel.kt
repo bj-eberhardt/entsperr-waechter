@@ -45,6 +45,7 @@ class MainViewModel(
 ) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
     private val settings = SettingsRepository(appContext)
+    private val failedUnlockNotifier = FailedUnlockNotifier()
     private val _permissionState = MutableStateFlow(PermissionState())
     val permissionState: StateFlow<PermissionState> = _permissionState.asStateFlow()
     val uiState: StateFlow<MainUiState> =
@@ -78,7 +79,7 @@ class MainViewModel(
 
     fun onAppResumed() {
         refreshPermissions()
-        FailedUnlockNotifier.cancel(appContext)
+        failedUnlockNotifier.cancel(appContext)
         viewModelScope.launch(Dispatchers.IO) {
             settings.resetFailedUnlockWarningStats()
         }

@@ -6,7 +6,10 @@ import de.eberhardt.unlockcapture.integrity.Hashing
 import de.eberhardt.unlockcapture.integrity.IntegrityStore
 import de.eberhardt.unlockcapture.util.AppLog
 
-object CaptureIntegrityRecorder {
+class CaptureIntegrityRecorder(
+    private val hashing: Hashing = Hashing(),
+    private val integrityStore: IntegrityStore = IntegrityStore(),
+) {
     fun record(
         context: Context,
         uri: Uri,
@@ -15,12 +18,12 @@ object CaptureIntegrityRecorder {
         val appContext = context.applicationContext
         runCatching {
             val stream = appContext.contentResolver.openInputStream(uri) ?: return@runCatching
-            val sha = Hashing.sha256Hex(stream)
+            val sha = hashing.sha256Hex(stream)
             val size =
                 runCatching {
                     appContext.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L
                 }.getOrDefault(-1L)
-            IntegrityStore.upsert(
+            integrityStore.upsert(
                 appContext,
                 IntegrityStore.Record(
                     uri = uri.toString(),

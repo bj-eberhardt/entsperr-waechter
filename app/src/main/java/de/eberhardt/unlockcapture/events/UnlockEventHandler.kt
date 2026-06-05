@@ -12,24 +12,26 @@ import kotlinx.coroutines.flow.first
 class UnlockEventHandler(
     context: Context,
     private val settings: SettingsRepository = SettingsRepository(context.applicationContext),
+    private val auditLog: AuditLog = AuditLog(),
+    private val failedUnlockNotifier: FailedUnlockNotifier = FailedUnlockNotifier(),
 ) {
     private val appContext = context.applicationContext
 
     suspend fun onPasswordFailed() {
-        AuditLog.appendUnlockEvent(
+        auditLog.appendUnlockEvent(
             context = appContext,
             eventKey = AuditLog.EVENT_UNLOCK_FAILED,
             result = "FAIL",
         )
         if (settings.failedUnlockWarningEnabled.first()) {
-            FailedUnlockNotifier.show(appContext, settings.recordFailedUnlockWarning())
+            failedUnlockNotifier.show(appContext, settings.recordFailedUnlockWarning())
         }
         CaptureTrigger.start(appContext, CaptureReason.PASSWORD_FAILED)
     }
 
     suspend fun onPasswordSucceeded() {
         if (settings.unlockLoggingMode.first() != UnlockLoggingMode.ALL) return
-        AuditLog.appendUnlockEvent(
+        auditLog.appendUnlockEvent(
             context = appContext,
             eventKey = AuditLog.EVENT_UNLOCK_SUCCESS,
             result = "SUCCESS",
