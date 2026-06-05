@@ -2,11 +2,11 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 plugins {
-    id("com.android.application") version "8.8.0" apply false
-    id("org.jetbrains.kotlin.android") version "2.1.10" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.10" apply false
-    id("com.diffplug.spotless") version "8.5.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.detekt)
 }
 
 subprojects {
@@ -28,7 +28,7 @@ spotless {
             ".gradle-user-home/**",
             "**/.gradle-user-home/**",
         )
-        ktlint("1.7.1").editorConfigOverride(
+        ktlint(libs.versions.ktlint.get()).editorConfigOverride(
             mapOf("ktlint_function_naming_ignore_when_annotated_with" to "Composable"),
         )
     }
@@ -43,7 +43,7 @@ spotless {
             ".gradle-user-home/**",
             "**/.gradle-user-home/**",
         )
-        ktlint("1.7.1")
+        ktlint(libs.versions.ktlint.get())
     }
 
     format("markdown") {
