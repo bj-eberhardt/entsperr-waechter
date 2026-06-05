@@ -25,44 +25,49 @@ class UnlockCaptureApp : Application() {
     private var lastScreenOnMs: Long = 0L
     private var lastTriggerMs: Long = 0L
 
-    private val runtimeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-            val now = System.currentTimeMillis()
-            AppLog.i("RuntimeRx", "onReceive action=$action")
+    private val runtimeReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                val action = intent.action
+                val now = System.currentTimeMillis()
+                AppLog.i("RuntimeRx", "onReceive action=$action")
 
-            if (!ENABLE_SCREEN_UNLOCK_TRIGGER) return
+                if (!ENABLE_SCREEN_UNLOCK_TRIGGER) return
 
-            when (action) {
-                Intent.ACTION_SCREEN_ON -> {
-                    lastScreenOnMs = now
-                    AppLog.i("RuntimeRx", "screenOn ts=$lastScreenOnMs")
-                }
-                Intent.ACTION_SCREEN_OFF -> {
-                    lastScreenOnMs = 0L
-                    AppLog.i("RuntimeRx", "screenOff -> reset")
-                }
-                Intent.ACTION_USER_PRESENT,
-                Intent.ACTION_USER_UNLOCKED -> {
-                    val screenOnAgeMs = if (lastScreenOnMs == 0L) Long.MAX_VALUE else (now - lastScreenOnMs)
-                    val sinceLastTriggerMs = now - lastTriggerMs
-                    val withinWindow = screenOnAgeMs in 0..30_000
-                    val debounced = sinceLastTriggerMs < 30_000
+                when (action) {
+                    Intent.ACTION_SCREEN_ON -> {
+                        lastScreenOnMs = now
+                        AppLog.i("RuntimeRx", "screenOn ts=$lastScreenOnMs")
+                    }
+                    Intent.ACTION_SCREEN_OFF -> {
+                        lastScreenOnMs = 0L
+                        AppLog.i("RuntimeRx", "screenOff -> reset")
+                    }
+                    Intent.ACTION_USER_PRESENT,
+                    Intent.ACTION_USER_UNLOCKED,
+                    -> {
+                        val screenOnAgeMs = if (lastScreenOnMs == 0L) Long.MAX_VALUE else (now - lastScreenOnMs)
+                        val sinceLastTriggerMs = now - lastTriggerMs
+                        val withinWindow = screenOnAgeMs in 0..30_000
+                        val debounced = sinceLastTriggerMs < 30_000
 
-                    AppLog.i(
-                        "RuntimeRx",
-                        "unlockSignal action=$action withinWindow=$withinWindow screenOnAgeMs=$screenOnAgeMs debounced=$debounced"
-                    )
+                        AppLog.i(
+                            "RuntimeRx",
+                            "unlockSignal action=$action withinWindow=$withinWindow screenOnAgeMs=$screenOnAgeMs debounced=$debounced",
+                        )
 
-                    if (withinWindow && !debounced) {
-                        lastTriggerMs = now
-                        AppLog.i("RuntimeRx", "Trigger capture (reason=USER_PRESENT)")
-                        CaptureTrigger.start(applicationContext, CaptureReason.USER_PRESENT)
+                        if (withinWindow && !debounced) {
+                            lastTriggerMs = now
+                            AppLog.i("RuntimeRx", "Trigger capture (reason=USER_PRESENT)")
+                            CaptureTrigger.start(applicationContext, CaptureReason.USER_PRESENT)
+                        }
                     }
                 }
             }
         }
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -73,36 +78,41 @@ class UnlockCaptureApp : Application() {
                 NotificationChannel(
                     CaptureForegroundService.CHANNEL_ID,
                     getString(R.string.capture_channel_name),
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_LOW,
                 ).apply {
                     description = getString(R.string.capture_channel_desc)
-                }
+                },
             )
             manager.createNotificationChannel(
                 NotificationChannel(
                     FailedUnlockNotifier.CHANNEL_ID,
                     getString(R.string.failed_unlock_warning_channel_name),
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_HIGH,
                 ).apply {
                     description = getString(R.string.failed_unlock_warning_channel_desc)
-                }
+                },
             )
         }
 
-        val filter = IntentFilter().apply {
-            addAction(Intent.ACTION_USER_PRESENT)
-            addAction(Intent.ACTION_USER_UNLOCKED)
-            addAction(Intent.ACTION_SCREEN_ON)
-            addAction(Intent.ACTION_SCREEN_OFF)
-            if (BuildConfig.DEBUG) {
-                addAction("de.eberhardt.unlockcapture.SELF_TEST")
+        val filter =
+            IntentFilter().apply {
+                addAction(Intent.ACTION_USER_PRESENT)
+                addAction(Intent.ACTION_USER_UNLOCKED)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+                if (BuildConfig.DEBUG) {
+                    addAction("de.eberhardt.unlockcapture.SELF_TEST")
+                }
             }
-        }
         ContextCompat.registerReceiver(
-            /* context = */ this,
-            /* receiver = */ runtimeReceiver,
-            /* filter = */ filter,
-            /* flags = */ ContextCompat.RECEIVER_NOT_EXPORTED
+            // context =
+            this,
+            // receiver =
+            runtimeReceiver,
+            // filter =
+            filter,
+            // flags =
+            ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         AppLog.i("App", "Registered runtime receiver for USER_PRESENT/USER_UNLOCKED/SCREEN_ON/OFF")
 

@@ -32,7 +32,7 @@ internal fun SetupScreen(
     onRequestPermissions: () -> Unit,
     onOpenDeviceAdmin: () -> Unit,
     onOpenNotificationSettings: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
 ) {
     Text(stringResource(R.string.setup_title), style = MaterialTheme.typography.titleLarge)
     Text(stringResource(R.string.setup_intro))
@@ -42,28 +42,28 @@ internal fun SetupScreen(
         ok = cameraOk,
         description = stringResource(R.string.setup_req_camera_desc),
         actionLabel = stringResource(R.string.action_grant_permissions),
-        onAction = onRequestPermissions
+        onAction = onRequestPermissions,
     )
     RequirementCard(
         title = stringResource(R.string.setup_req_notifications_title),
         ok = notificationsOk,
         description = stringResource(R.string.setup_req_notifications_desc),
         actionLabel = stringResource(R.string.action_open_notification_settings),
-        onAction = onOpenNotificationSettings
+        onAction = onOpenNotificationSettings,
     )
     RequirementCard(
         title = stringResource(R.string.setup_req_media_title),
         ok = mediaOk,
         description = stringResource(R.string.setup_req_media_desc),
         actionLabel = stringResource(R.string.action_grant_permissions),
-        onAction = onRequestPermissions
+        onAction = onRequestPermissions,
     )
     RequirementCard(
         title = stringResource(R.string.setup_req_admin_title),
         ok = adminOk,
         description = stringResource(R.string.setup_req_admin_desc),
         actionLabel = stringResource(R.string.action_enable_device_admin),
-        onAction = onOpenDeviceAdmin
+        onAction = onOpenDeviceAdmin,
     )
 
     Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.action_recheck)) }
@@ -86,7 +86,7 @@ internal fun HomeScreen(
     onLockTimeoutMs: (Long) -> Unit,
     onMode: (CaptureMode) -> Unit,
     onTest: () -> Unit,
-    onOpenFolder: () -> Unit
+    onOpenFolder: () -> Unit,
 ) {
     Text(stringResource(R.string.home_status_title), style = MaterialTheme.typography.titleLarge)
     Text(stringResource(R.string.home_status_body))
@@ -106,7 +106,7 @@ internal fun HomeScreen(
                     value = videoDurationSeconds.toFloat(),
                     onValueChange = { onVideoDurationSeconds(it.toInt()) },
                     valueRange = 3f..20f,
-                    steps = 16
+                    steps = 16,
                 )
                 Text(stringResource(R.string.video_duration_hint), style = MaterialTheme.typography.bodySmall)
             }

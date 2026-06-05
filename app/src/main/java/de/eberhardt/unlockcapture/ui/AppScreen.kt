@@ -72,7 +72,7 @@ internal fun AppScreen(
     onRequestPermissions: () -> Unit,
     onOpenDeviceAdmin: () -> Unit,
     onOpenNotificationSettings: () -> Unit,
-    onRequestNotifications: () -> Unit
+    onRequestNotifications: () -> Unit,
 ) {
     val context = LocalContext.current
     val settings = remember { SettingsRepository(context.applicationContext) }
@@ -120,7 +120,7 @@ internal fun AppScreen(
             context,
             receiver,
             filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
@@ -140,7 +140,7 @@ internal fun AppScreen(
         val ok = BiometricGate.authenticate(
             activity = activity,
             title = context.getString(R.string.app_lock_prompt_title),
-            subtitle = context.getString(R.string.app_lock_prompt_subtitle)
+            subtitle = context.getString(R.string.app_lock_prompt_subtitle),
         )
         gateInProgress = false
         if (ok) {
@@ -172,7 +172,7 @@ internal fun AppScreen(
                             Image(
                                 painter = painterResource(R.drawable.ic_appbar_logo),
                                 contentDescription = null,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(26.dp),
                             )
                             Text(stringResource(R.string.app_name))
                         }
@@ -181,10 +181,10 @@ internal fun AppScreen(
                         IconButton(onClick = { showAbout = true }) {
                             Icon(
                                 painter = painterResource(android.R.drawable.ic_menu_info_details),
-                                contentDescription = stringResource(R.string.action_about_privacy)
+                                contentDescription = stringResource(R.string.action_about_privacy),
                             )
                         }
-                    }
+                    },
                 )
             },
             bottomBar = {
@@ -193,7 +193,7 @@ internal fun AppScreen(
                         selected = tab == Tab.SETTINGS,
                         onClick = { tab = Tab.SETTINGS },
                         icon = { Icon(painterResource(android.R.drawable.ic_menu_manage), contentDescription = stringResource(R.string.tab_settings)) },
-                        label = { Text(stringResource(R.string.tab_settings)) }
+                        label = { Text(stringResource(R.string.tab_settings)) },
                     )
                     NavigationBarItem(
                         selected = tab == Tab.BROWSE,
@@ -203,7 +203,7 @@ internal fun AppScreen(
                             }
                         },
                         icon = { Icon(painterResource(android.R.drawable.ic_menu_gallery), contentDescription = stringResource(R.string.tab_browse)) },
-                        label = { Text(stringResource(R.string.tab_browse)) }
+                        label = { Text(stringResource(R.string.tab_browse)) },
                     )
                     NavigationBarItem(
                         selected = tab == Tab.HISTORY,
@@ -213,15 +213,15 @@ internal fun AppScreen(
                             }
                         },
                         icon = { Icon(painterResource(android.R.drawable.ic_menu_recent_history), contentDescription = stringResource(R.string.tab_history)) },
-                        label = { Text(stringResource(R.string.tab_history)) }
+                        label = { Text(stringResource(R.string.tab_history)) },
                     )
                 }
-            }
+            },
         ) { padding ->
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .padding(padding),
             ) {
                 when (tab) {
                     Tab.SETTINGS -> {
@@ -230,7 +230,7 @@ internal fun AppScreen(
                                 .padding(20.dp)
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
                             if (permissionState.cameraOk && permissionState.adminOk) {
                                 HomeScreen(
@@ -249,7 +249,7 @@ internal fun AppScreen(
                                     onLockTimeoutMs = { scope.launch { settings.setLockTimeoutMs(it) } },
                                     onMode = { scope.launch { settings.setCaptureMode(it) } },
                                     onTest = { CaptureTrigger.start(context, CaptureReason.MANUAL_TEST) },
-                                    onOpenFolder = { openAppMediaFolder(context as Activity) }
+                                    onOpenFolder = { openAppMediaFolder(context as Activity) },
                                 )
                             } else {
                                 SetupScreen(
@@ -260,7 +260,7 @@ internal fun AppScreen(
                                     onRequestPermissions = onRequestPermissions,
                                     onOpenDeviceAdmin = onOpenDeviceAdmin,
                                     onOpenNotificationSettings = onOpenNotificationSettings,
-                                    onRefresh = { mainViewModel.refreshPermissions() }
+                                    onRefresh = { mainViewModel.refreshPermissions() },
                                 )
                             }
                         }
@@ -270,11 +270,11 @@ internal fun AppScreen(
                             modifier = Modifier
                                 .padding(20.dp)
                                 .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
                             BrowseScreen(
                                 canBrowse = permissionState.mediaOk,
-                                onRequestPermissions = onRequestPermissions
+                                onRequestPermissions = onRequestPermissions,
                             )
                         }
                     }
@@ -283,7 +283,7 @@ internal fun AppScreen(
                             modifier = Modifier
                                 .padding(20.dp)
                                 .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
                             HistoryScreen()
                         }
@@ -294,7 +294,7 @@ internal fun AppScreen(
 
         if (showAbout) {
             AboutDialog(
-                onDismiss = { showAbout = false }
+                onDismiss = { showAbout = false },
             )
         }
     }
@@ -308,7 +308,7 @@ private fun AboutDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.about_title)) },
         text = { Text(stringResource(R.string.about_body)) },
-        confirmButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.action_close)) } }
+        confirmButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.action_close)) } },
     )
 }
 

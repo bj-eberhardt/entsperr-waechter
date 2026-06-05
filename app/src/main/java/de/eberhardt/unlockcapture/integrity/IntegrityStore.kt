@@ -16,7 +16,10 @@ object IntegrityStore {
         val tsMs: Long,
     )
 
-    fun upsert(context: Context, record: Record) {
+    fun upsert(
+        context: Context,
+        record: Record,
+    ) {
         val appContext = context.applicationContext
         val file = File(appContext.filesDir, FILE_NAME)
         synchronized(lock) {
@@ -26,7 +29,10 @@ object IntegrityStore {
         }
     }
 
-    fun get(context: Context, uri: String): Record? {
+    fun get(
+        context: Context,
+        uri: String,
+    ): Record? {
         val appContext = context.applicationContext
         val file = File(appContext.filesDir, FILE_NAME)
         synchronized(lock) {
@@ -58,16 +64,20 @@ object IntegrityStore {
         return out
     }
 
-    private fun writeAllLocked(file: File, records: List<Record>) {
+    private fun writeAllLocked(
+        file: File,
+        records: List<Record>,
+    ) {
         val tmp = File(file.parentFile, "${file.name}.tmp")
         val sb = StringBuilder()
         for (r in records) {
-            val obj = JSONObject().apply {
-                put("uri", r.uri)
-                put("sha256", r.sha256)
-                put("sizeBytes", r.sizeBytes)
-                put("tsMs", r.tsMs)
-            }
+            val obj =
+                JSONObject().apply {
+                    put("uri", r.uri)
+                    put("sha256", r.sha256)
+                    put("sizeBytes", r.sizeBytes)
+                    put("tsMs", r.tsMs)
+                }
             sb.append(obj.toString()).append('\n')
         }
         tmp.writeText(sb.toString(), Charsets.UTF_8)

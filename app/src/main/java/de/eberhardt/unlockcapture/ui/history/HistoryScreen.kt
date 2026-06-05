@@ -16,9 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -87,7 +87,7 @@ internal fun HistoryScreen() {
                 Row(
                     Modifier.padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val isFail = entry.result == "FAIL"
                     val iconRes =
@@ -105,10 +105,8 @@ internal fun HistoryScreen() {
     }
 }
 
-private fun historyMessage(context: Context, entry: AuditLog.Entry): String {
-    return when (entry.eventKey) {
-        AuditLog.EVENT_UNLOCK_FAILED -> context.getString(R.string.history_event_unlock_failed)
-        AuditLog.EVENT_UNLOCK_SUCCESS -> context.getString(R.string.history_event_unlock_success)
-        else -> entry.message
-    }
+private fun historyMessage(context: Context, entry: AuditLog.Entry): String = when (entry.eventKey) {
+    AuditLog.EVENT_UNLOCK_FAILED -> context.getString(R.string.history_event_unlock_failed)
+    AuditLog.EVENT_UNLOCK_SUCCESS -> context.getString(R.string.history_event_unlock_success)
+    else -> entry.message
 }

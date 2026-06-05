@@ -40,7 +40,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.Executors
 
-class CaptureForegroundService : Service(), LifecycleOwner {
+class CaptureForegroundService :
+    Service(),
+    LifecycleOwner {
     companion object {
         const val CHANNEL_ID = "capture"
         const val NOTIFICATION_ID = 1001
@@ -53,6 +55,7 @@ class CaptureForegroundService : Service(), LifecycleOwner {
         const val STATE_FINISHED = "FINISHED"
         const val ERROR_CAMERA_PERMISSION_MISSING = "camera_permission_missing"
         const val ERROR_VIDEO_FINALIZE_PREFIX = "video_finalize:"
+
         @Volatile private var running = false
     }
 
@@ -70,8 +73,17 @@ class CaptureForegroundService : Service(), LifecycleOwner {
         startForeground(NOTIFICATION_ID, notification())
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        AppLog.i("Service", "onStartCommand(startId=$startId flags=$flags) action=${intent?.action} extras=${intent?.extras?.keySet()?.joinToString(",") ?: "-"}")
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
+        AppLog.i(
+            "Service",
+            "onStartCommand(startId=$startId flags=$flags) action=${intent?.action} extras=${intent?.extras?.keySet()?.joinToString(
+                ",",
+            ) ?: "-"}",
+        )
         if (running) {
             AppLog.w("Service", "Already running -> stopSelf(startId=$startId)")
             stopSelf(startId)
@@ -80,14 +92,17 @@ class CaptureForegroundService : Service(), LifecycleOwner {
         running = true
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
 
-        val reason = runCatching {
-            CaptureReason.valueOf(intent?.getStringExtra(EXTRA_REASON) ?: CaptureReason.MANUAL_TEST.name)
-        }.getOrDefault(CaptureReason.MANUAL_TEST)
+        val reason =
+            runCatching {
+                CaptureReason.valueOf(intent?.getStringExtra(EXTRA_REASON) ?: CaptureReason.MANUAL_TEST.name)
+            }.getOrDefault(CaptureReason.MANUAL_TEST)
         AppLog.i("Service", "Capture reason=$reason")
 
         scope.launch {
             try {
-                if (ContextCompat.checkSelfPermission(this@CaptureForegroundService, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this@CaptureForegroundService, Manifest.permission.CAMERA) !=
+                    PackageManager.PERMISSION_GRANTED
+                ) {
                     AppLog.w("Service", "CAMERA permission missing -> abort")
                     statusBroadcaster.finished(reason, success = false, error = ERROR_CAMERA_PERMISSION_MISSING)
                     return@launch
@@ -109,10 +124,15 @@ class CaptureForegroundService : Service(), LifecycleOwner {
     }
 
     private fun notification(): Notification {
-        val pending = PendingIntent.getActivity(
-            this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
-        )
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val pending =
+            PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        return NotificationCompat
+            .Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_camera)
             .setContentTitle(getString(R.string.fg_notification_title))
             .setContentText(getString(R.string.fg_notification_text))
@@ -130,39 +150,47 @@ class CaptureForegroundService : Service(), LifecycleOwner {
         delay(700)
 
         val name = createMediaName(reason)
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            // On Android 10+, specify the folder
-            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/UnlockCapture")
+        val contentValues =
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                // On Android 10+, specify the folder
+                if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.P) {
+                    put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/UnlockCapture")
+                }
             }
-        }
 
-        val options = ImageCapture.OutputFileOptions.Builder(
-            contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        ).build()
+        val options =
+            ImageCapture.OutputFileOptions
+                .Builder(
+                    contentResolver,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    contentValues,
+                ).build()
         AppLog.i("Capture", "Photo output name=$name")
 
-        imageCapture.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-            override fun onError(exception: ImageCaptureException) {
-                AppLog.e("Capture", "Photo error: ${exception.message}", exception)
-                statusBroadcaster.finished(reason, success = false, error = exception.message ?: exception.javaClass.simpleName)
-                stopSelf()
-            }
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                AppLog.i("Capture", "Photo saved: uri=${outputFileResults.savedUri}")
-                outputFileResults.savedUri?.let { uri ->
-                    scope.launch(Dispatchers.IO) {
-                        CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "photo")
-                    }
+        imageCapture.takePicture(
+            options,
+            cameraExecutor,
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exception: ImageCaptureException) {
+                    AppLog.e("Capture", "Photo error: ${exception.message}", exception)
+                    statusBroadcaster.finished(reason, success = false, error = exception.message ?: exception.javaClass.simpleName)
+                    stopSelf()
                 }
-                statusBroadcaster.finished(reason, success = true)
-                stopSelf()
-            }
-        })
+
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    AppLog.i("Capture", "Photo saved: uri=${outputFileResults.savedUri}")
+                    outputFileResults.savedUri?.let { uri ->
+                        scope.launch(Dispatchers.IO) {
+                            CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "photo")
+                        }
+                    }
+                    statusBroadcaster.finished(reason, success = true)
+                    stopSelf()
+                }
+            },
+        )
         delay(2500)
         provider.unbindAll()
     }
@@ -187,38 +215,42 @@ class CaptureForegroundService : Service(), LifecycleOwner {
             val durationSeconds = SettingsRepository(this).videoDurationSeconds.first()
             AppLog.i("Capture", "Video durationSeconds=$durationSeconds")
 
-            val values = ContentValues().apply {
-                put(MediaStore.Video.Media.DISPLAY_NAME, createMediaName(reason) + ".mp4")
-                put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-                put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/UnlockCapture")
-            }
+            val values =
+                ContentValues().apply {
+                    put(MediaStore.Video.Media.DISPLAY_NAME, createMediaName(reason) + ".mp4")
+                    put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
+                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/UnlockCapture")
+                }
             AppLog.i("Capture", "Video values name=${values.getAsString(MediaStore.Video.Media.DISPLAY_NAME)}")
 
-            val options = MediaStoreOutputOptions.Builder(contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-                .setContentValues(values)
-                .build()
+            val options =
+                MediaStoreOutputOptions
+                    .Builder(contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+                    .setContentValues(values)
+                    .build()
 
-            val recording: Recording = videoCapture.output
-                .prepareRecording(this, options)
-                .start(ContextCompat.getMainExecutor(this)) { event ->
-                    if (event is VideoRecordEvent.Finalize) {
-                        AppLog.i("Capture", "Video finalize error=${event.error} cause=${event.cause}")
-                        if (event.error == VideoRecordEvent.Finalize.ERROR_NONE) {
-                            val uri = event.outputResults.outputUri
-                            scope.launch(Dispatchers.IO) {
-                                CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "video")
+            val recording: Recording =
+                videoCapture.output
+                    .prepareRecording(this, options)
+                    .start(ContextCompat.getMainExecutor(this)) { event ->
+                        if (event is VideoRecordEvent.Finalize) {
+                            AppLog.i("Capture", "Video finalize error=${event.error} cause=${event.cause}")
+                            if (event.error == VideoRecordEvent.Finalize.ERROR_NONE) {
+                                val uri = event.outputResults.outputUri
+                                scope.launch(Dispatchers.IO) {
+                                    CaptureIntegrityRecorder.record(this@CaptureForegroundService, uri, "video")
+                                }
+                                statusBroadcaster.finished(reason, success = true)
+                            } else {
+                                statusBroadcaster.finished(
+                                    reason,
+                                    success = false,
+                                    error = ERROR_VIDEO_FINALIZE_PREFIX + event.error,
+                                )
                             }
-                            statusBroadcaster.finished(reason, success = true)
-                        } else {
-                            statusBroadcaster.finished(
-                                reason,
-                                success = false,
-                                error = ERROR_VIDEO_FINALIZE_PREFIX + event.error
-                            )
+                            stopSelf()
                         }
-                        stopSelf()
                     }
-                }
 
             delay(durationSeconds * 1000L)
             AppLog.i("Capture", "Stopping video recording")

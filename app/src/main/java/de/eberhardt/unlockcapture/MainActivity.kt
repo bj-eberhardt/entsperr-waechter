@@ -11,12 +11,14 @@ import de.eberhardt.unlockcapture.util.PermissionUtils
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainViewModel: MainViewModel
-    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        mainViewModel.refreshPermissions()
-    }
-    private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        mainViewModel.refreshPermissions()
-    }
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            mainViewModel.refreshPermissions()
+        }
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            mainViewModel.refreshPermissions()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         mainViewModel.refreshPermissions()
                     }
-                }
+                },
             )
         }
     }

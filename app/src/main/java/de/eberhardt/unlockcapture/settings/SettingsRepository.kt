@@ -1,8 +1,8 @@
 package de.eberhardt.unlockcapture.settings
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -17,7 +17,9 @@ data class FailedUnlockWarningStats(
     val lastTimestampMs: Long,
 )
 
-class SettingsRepository(private val context: Context) {
+class SettingsRepository(
+    private val context: Context,
+) {
     private val captureModeKey = stringPreferencesKey("capture_mode")
     private val videoDurationSecondsKey = intPreferencesKey("video_duration_seconds")
     private val unlockLoggingModeKey = stringPreferencesKey("unlock_logging_mode")
@@ -28,51 +30,61 @@ class SettingsRepository(private val context: Context) {
     private val failedUnlockWarningCountKey = intPreferencesKey("failed_unlock_warning_count")
     private val failedUnlockWarningLastTimestampMsKey = longPreferencesKey("failed_unlock_warning_last_timestamp_ms")
 
-    val appSettings: Flow<AppSettings> = context.dataStore.data.map { prefs ->
-        AppSettings(
-            captureMode = runCatching { CaptureMode.valueOf(prefs[captureModeKey] ?: CaptureMode.PHOTO.name) }
-                .getOrDefault(CaptureMode.PHOTO),
-            videoDurationSeconds = (prefs[videoDurationSecondsKey] ?: 4).coerceIn(3, 20),
-            unlockLoggingMode = runCatching { UnlockLoggingMode.valueOf(prefs[unlockLoggingModeKey] ?: UnlockLoggingMode.FAILED_ONLY.name) }
-                .getOrDefault(UnlockLoggingMode.FAILED_ONLY),
-            lockEnabled = prefs[lockEnabledKey] ?: false,
-            lockTimeoutMs = normalizeLockTimeoutMs(prefs[lockTimeoutMsKey] ?: 0L),
-            lastAuthElapsedMs = prefs[lastAuthElapsedMsKey] ?: 0L,
-            failedUnlockWarningEnabled = prefs[failedUnlockWarningEnabledKey] ?: false,
-        )
-    }
+    val appSettings: Flow<AppSettings> =
+        context.dataStore.data.map { prefs ->
+            AppSettings(
+                captureMode =
+                runCatching { CaptureMode.valueOf(prefs[captureModeKey] ?: CaptureMode.PHOTO.name) }
+                    .getOrDefault(CaptureMode.PHOTO),
+                videoDurationSeconds = (prefs[videoDurationSecondsKey] ?: 4).coerceIn(3, 20),
+                unlockLoggingMode =
+                runCatching { UnlockLoggingMode.valueOf(prefs[unlockLoggingModeKey] ?: UnlockLoggingMode.FAILED_ONLY.name) }
+                    .getOrDefault(UnlockLoggingMode.FAILED_ONLY),
+                lockEnabled = prefs[lockEnabledKey] ?: false,
+                lockTimeoutMs = normalizeLockTimeoutMs(prefs[lockTimeoutMsKey] ?: 0L),
+                lastAuthElapsedMs = prefs[lastAuthElapsedMsKey] ?: 0L,
+                failedUnlockWarningEnabled = prefs[failedUnlockWarningEnabledKey] ?: false,
+            )
+        }
 
-    val videoDurationSeconds: Flow<Int> = context.dataStore.data.map { prefs ->
-        val raw = prefs[videoDurationSecondsKey] ?: 4
-        raw.coerceIn(3, 20)
-    }
+    val videoDurationSeconds: Flow<Int> =
+        context.dataStore.data.map { prefs ->
+            val raw = prefs[videoDurationSecondsKey] ?: 4
+            raw.coerceIn(3, 20)
+        }
 
-    val unlockLoggingMode: Flow<UnlockLoggingMode> = context.dataStore.data.map { prefs ->
-        runCatching { UnlockLoggingMode.valueOf(prefs[unlockLoggingModeKey] ?: UnlockLoggingMode.FAILED_ONLY.name) }
-            .getOrDefault(UnlockLoggingMode.FAILED_ONLY)
-    }
+    val unlockLoggingMode: Flow<UnlockLoggingMode> =
+        context.dataStore.data.map { prefs ->
+            runCatching { UnlockLoggingMode.valueOf(prefs[unlockLoggingModeKey] ?: UnlockLoggingMode.FAILED_ONLY.name) }
+                .getOrDefault(UnlockLoggingMode.FAILED_ONLY)
+        }
 
-    val lockEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[lockEnabledKey] ?: false
-    }
+    val lockEnabled: Flow<Boolean> =
+        context.dataStore.data.map { prefs ->
+            prefs[lockEnabledKey] ?: false
+        }
 
-    val lockTimeoutMs: Flow<Long> = context.dataStore.data.map { prefs ->
-        val raw = prefs[lockTimeoutMsKey] ?: 0L
-        normalizeLockTimeoutMs(raw)
-    }
+    val lockTimeoutMs: Flow<Long> =
+        context.dataStore.data.map { prefs ->
+            val raw = prefs[lockTimeoutMsKey] ?: 0L
+            normalizeLockTimeoutMs(raw)
+        }
 
-    val lastAuthElapsedMs: Flow<Long> = context.dataStore.data.map { prefs ->
-        prefs[lastAuthElapsedMsKey] ?: 0L
-    }
+    val lastAuthElapsedMs: Flow<Long> =
+        context.dataStore.data.map { prefs ->
+            prefs[lastAuthElapsedMsKey] ?: 0L
+        }
 
-    val failedUnlockWarningEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[failedUnlockWarningEnabledKey] ?: false
-    }
+    val failedUnlockWarningEnabled: Flow<Boolean> =
+        context.dataStore.data.map { prefs ->
+            prefs[failedUnlockWarningEnabledKey] ?: false
+        }
 
-    val captureMode: Flow<CaptureMode> = context.dataStore.data.map { prefs ->
-        runCatching { CaptureMode.valueOf(prefs[captureModeKey] ?: CaptureMode.PHOTO.name) }
-            .getOrDefault(CaptureMode.PHOTO)
-    }
+    val captureMode: Flow<CaptureMode> =
+        context.dataStore.data.map { prefs ->
+            runCatching { CaptureMode.valueOf(prefs[captureModeKey] ?: CaptureMode.PHOTO.name) }
+                .getOrDefault(CaptureMode.PHOTO)
+        }
 
     suspend fun setCaptureMode(mode: CaptureMode) {
         context.dataStore.edit { it[captureModeKey] = mode.name }
@@ -123,10 +135,8 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    private fun normalizeLockTimeoutMs(timeoutMs: Long): Long {
-        return when (timeoutMs) {
-            0L, 30_000L, 300_000L -> timeoutMs
-            else -> 0L
-        }
+    private fun normalizeLockTimeoutMs(timeoutMs: Long): Long = when (timeoutMs) {
+        0L, 30_000L, 300_000L -> timeoutMs
+        else -> 0L
     }
 }

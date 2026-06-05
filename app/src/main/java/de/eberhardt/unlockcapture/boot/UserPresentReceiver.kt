@@ -11,7 +11,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class UserPresentReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         AppLog.i("Boot", "onReceive action=${intent.action}")
         if (intent.action == Intent.ACTION_USER_PRESENT) {
             AppLog.i("Boot", "Trigger capture (reason=USER_PRESENT)")

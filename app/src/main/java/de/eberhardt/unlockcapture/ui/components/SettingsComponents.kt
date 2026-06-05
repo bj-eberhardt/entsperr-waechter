@@ -57,9 +57,9 @@ internal fun RequirementCard(
                 stringResource(
                     R.string.status_format,
                     title,
-                    if (ok) stringResource(R.string.status_ok) else stringResource(R.string.status_missing)
+                    if (ok) stringResource(R.string.status_ok) else stringResource(R.string.status_missing),
                 ),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(description)
             if (!ok) {

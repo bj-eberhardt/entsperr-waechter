@@ -40,12 +40,12 @@ import de.eberhardt.unlockcapture.R
 import de.eberhardt.unlockcapture.browse.CapturedArtifact
 import de.eberhardt.unlockcapture.browse.MediaStoreBrowser
 import de.eberhardt.unlockcapture.integrity.IntegrityStore
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 internal fun BrowseScreen(
@@ -144,14 +144,14 @@ private fun PresentEntry(entry: BrowseEntry.Present, dateFormat: SimpleDateForma
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
                 runCatching { context.startActivity(viewIntent) }
-            }
+            },
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             ArtifactThumbnail(item = item)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
@@ -159,14 +159,14 @@ private fun PresentEntry(entry: BrowseEntry.Present, dateFormat: SimpleDateForma
                 Text(dateFormat.format(Date(item.dateAddedSeconds * 1000)), style = MaterialTheme.typography.bodyMedium)
                 Text(
                     if (item.type.name == "VIDEO") stringResource(R.string.artifact_type_video) else stringResource(R.string.artifact_type_photo),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
             if (entry.missing) {
                 Icon(
                     painter = painterResource(android.R.drawable.ic_dialog_alert),
                     contentDescription = stringResource(R.string.artifact_missing),
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
                 )
             }
         }
@@ -180,12 +180,12 @@ private fun MissingEntry(entry: BrowseEntry.Missing, dateFormat: SimpleDateForma
         Row(
             Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 painter = painterResource(android.R.drawable.ic_dialog_alert),
                 contentDescription = stringResource(R.string.artifact_missing),
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.artifact_missing), style = MaterialTheme.typography.titleMedium)
@@ -216,13 +216,13 @@ private fun ArtifactThumbnail(item: CapturedArtifact) {
                             context.contentResolver,
                             item.id,
                             MediaStore.Video.Thumbnails.MINI_KIND,
-                            null
+                            null,
                         )
                         else -> MediaStore.Images.Thumbnails.getThumbnail(
                             context.contentResolver,
                             item.id,
                             MediaStore.Images.Thumbnails.MINI_KIND,
-                            null
+                            null,
                         )
                     }
                 }
@@ -238,12 +238,12 @@ private fun ArtifactThumbnail(item: CapturedArtifact) {
                 .height(64.dp)
                 .padding(end = 4.dp)
                 .clip(RoundedCornerShape(10.dp)),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
     } else {
         Icon(
             painter = painterResource(if (item.type.name == "VIDEO") android.R.drawable.ic_media_play else android.R.drawable.ic_menu_report_image),
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }

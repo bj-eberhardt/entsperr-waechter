@@ -19,7 +19,7 @@ class UnlockEventHandler(
         AuditLog.appendUnlockEvent(
             context = appContext,
             eventKey = AuditLog.EVENT_UNLOCK_FAILED,
-            result = "FAIL"
+            result = "FAIL",
         )
         if (settings.failedUnlockWarningEnabled.first()) {
             FailedUnlockNotifier.show(appContext, settings.recordFailedUnlockWarning())
@@ -32,7 +32,7 @@ class UnlockEventHandler(
         AuditLog.appendUnlockEvent(
             context = appContext,
             eventKey = AuditLog.EVENT_UNLOCK_SUCCESS,
-            result = "SUCCESS"
+            result = "SUCCESS",
         )
         CaptureTrigger.start(appContext, CaptureReason.PASSWORD_SUCCEEDED)
     }

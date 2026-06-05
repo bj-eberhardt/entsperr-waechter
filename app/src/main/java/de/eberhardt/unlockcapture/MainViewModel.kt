@@ -19,7 +19,9 @@ data class PermissionState(
     val mediaOk: Boolean = false,
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(
+    application: Application,
+) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
     private val settings = SettingsRepository(appContext)
     private val _permissionState = MutableStateFlow(PermissionState())
@@ -30,12 +32,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshPermissions() {
-        _permissionState.value = PermissionState(
-            cameraOk = PermissionUtils.hasCamera(appContext),
-            notificationsOk = PermissionUtils.hasNotifications(appContext),
-            adminOk = PermissionUtils.isDeviceAdminActive(appContext),
-            mediaOk = PermissionUtils.hasMediaRead(appContext),
-        )
+        _permissionState.value =
+            PermissionState(
+                cameraOk = PermissionUtils.hasCamera(appContext),
+                notificationsOk = PermissionUtils.hasNotifications(appContext),
+                adminOk = PermissionUtils.isDeviceAdminActive(appContext),
+                mediaOk = PermissionUtils.hasMediaRead(appContext),
+            )
     }
 
     fun onAppResumed() {

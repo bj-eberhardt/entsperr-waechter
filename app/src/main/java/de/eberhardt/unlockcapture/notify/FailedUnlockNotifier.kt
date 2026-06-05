@@ -17,38 +17,45 @@ object FailedUnlockNotifier {
     private const val NOTIFICATION_ID = 2001
 
     @SuppressLint("MissingPermission")
-    fun show(context: Context, stats: FailedUnlockWarningStats) {
+    fun show(
+        context: Context,
+        stats: FailedUnlockWarningStats,
+    ) {
         val appContext = context.applicationContext
         if (!PermissionUtils.hasNotifications(appContext)) {
             AppLog.w("FailedUnlockNotifier", "Notification permission missing -> skip warning")
             return
         }
 
-        val text = appContext.resources.getQuantityString(
-            R.plurals.failed_unlock_warning_count,
-            stats.count,
-            stats.count
-        )
-        val pending = PendingIntent.getActivity(
-            appContext,
-            0,
-            Intent(appContext, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val notification = NotificationCompat.Builder(appContext, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle(appContext.getString(R.string.failed_unlock_warning_title))
-            .setContentText(text)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-            .setContentIntent(pending)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setNumber(stats.count)
-            .setWhen(stats.lastTimestampMs)
-            .setShowWhen(true)
-            .setOnlyAlertOnce(true)
-            .setAutoCancel(true)
-            .build()
+        val text =
+            appContext.resources.getQuantityString(
+                R.plurals.failed_unlock_warning_count,
+                stats.count,
+                stats.count,
+            )
+        val pending =
+            PendingIntent.getActivity(
+                appContext,
+                0,
+                Intent(appContext, MainActivity::class.java),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        val notification =
+            NotificationCompat
+                .Builder(appContext, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setContentTitle(appContext.getString(R.string.failed_unlock_warning_title))
+                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setContentIntent(pending)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setNumber(stats.count)
+                .setWhen(stats.lastTimestampMs)
+                .setShowWhen(true)
+                .setOnlyAlertOnce(true)
+                .setAutoCancel(true)
+                .build()
 
         runCatching {
             NotificationManagerCompat.from(appContext).notify(NOTIFICATION_ID, notification)
