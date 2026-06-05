@@ -22,6 +22,8 @@ import de.eberhardt.unlockcapture.settings.CaptureMode
 import de.eberhardt.unlockcapture.settings.UnlockLoggingMode
 import de.eberhardt.unlockcapture.ui.components.ModeRow
 import de.eberhardt.unlockcapture.ui.components.RequirementCard
+import de.eberhardt.unlockcapture.ui.components.SettingsGroupTitle
+import de.eberhardt.unlockcapture.ui.components.adaptiveActionButtonWidth
 
 @Composable
 internal fun SetupScreen(
@@ -66,7 +68,7 @@ internal fun SetupScreen(
         onAction = onOpenDeviceAdmin,
     )
 
-    Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.action_recheck)) }
+    Button(onClick = onRefresh, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_recheck)) }
 }
 
 @Composable
@@ -92,7 +94,7 @@ internal fun HomeScreen(
     Text(stringResource(R.string.home_status_body))
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.capture_mode_title), style = MaterialTheme.typography.titleMedium)
+            SettingsGroupTitle(stringResource(R.string.capture_mode_title))
             ModeRow(stringResource(R.string.capture_mode_photo), CaptureMode.PHOTO, mode, onMode)
             ModeRow(stringResource(R.string.capture_mode_video), CaptureMode.VIDEO_4_SECONDS, mode, onMode)
         }
@@ -100,35 +102,43 @@ internal fun HomeScreen(
     if (mode == CaptureMode.VIDEO_4_SECONDS) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.video_duration_title), style = MaterialTheme.typography.titleMedium)
-                Text(pluralStringResource(R.plurals.video_duration_seconds, videoDurationSeconds, videoDurationSeconds))
+                SettingsGroupTitle(stringResource(R.string.video_duration_title))
+                Text(
+                    pluralStringResource(R.plurals.video_duration_seconds, videoDurationSeconds, videoDurationSeconds),
+                    style = MaterialTheme.typography.bodySmall,
+                )
                 Slider(
                     value = videoDurationSeconds.toFloat(),
                     onValueChange = { onVideoDurationSeconds(it.toInt()) },
                     valueRange = 3f..20f,
                     steps = 16,
                 )
-                Text(stringResource(R.string.video_duration_hint), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.video_duration_hint), style = MaterialTheme.typography.labelSmall)
             }
         }
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.unlock_logging_title), style = MaterialTheme.typography.titleMedium)
+            SettingsGroupTitle(stringResource(R.string.unlock_logging_title))
             ModeRow(stringResource(R.string.unlock_logging_failed_only), UnlockLoggingMode.FAILED_ONLY, unlockLoggingMode, onUnlockLoggingMode)
             ModeRow(stringResource(R.string.unlock_logging_all), UnlockLoggingMode.ALL, unlockLoggingMode, onUnlockLoggingMode)
-            Text(stringResource(R.string.unlock_logging_hint), style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.unlock_logging_hint), style = MaterialTheme.typography.labelSmall)
         }
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.failed_unlock_warning_setting_title), style = MaterialTheme.typography.titleMedium)
+            SettingsGroupTitle(stringResource(R.string.notifications_group_title))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.failed_unlock_warning_setting_desc), modifier = Modifier.weight(1f))
+                Text(
+                    stringResource(R.string.failed_unlock_warning_setting_title),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
                 Switch(checked = failedUnlockWarningEnabled, onCheckedChange = onFailedUnlockWarningEnabled)
             }
+            Text(stringResource(R.string.failed_unlock_warning_setting_desc), style = MaterialTheme.typography.labelSmall)
             if (!notificationsOk) {
-                Button(onClick = onRequestNotifications, modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = onRequestNotifications, modifier = Modifier.adaptiveActionButtonWidth()) {
                     Text(stringResource(R.string.action_allow_notifications))
                 }
             }
@@ -136,9 +146,13 @@ internal fun HomeScreen(
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.app_lock_title), style = MaterialTheme.typography.titleMedium)
+            SettingsGroupTitle(stringResource(R.string.app_lock_title))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.app_lock_enabled), modifier = Modifier.weight(1f))
+                Text(
+                    stringResource(R.string.app_lock_enabled),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodySmall,
+                )
                 Switch(checked = lockEnabled, onCheckedChange = onLockEnabled)
             }
             if (lockEnabled) {
@@ -149,7 +163,7 @@ internal fun HomeScreen(
             }
         }
     }
-    Button(onClick = onTest, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.action_start_test_capture)) }
-    Button(onClick = onOpenFolder, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.action_open_media_folder)) }
-    Text(stringResource(R.string.home_note))
+    Button(onClick = onTest, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_start_test_capture)) }
+    Button(onClick = onOpenFolder, modifier = Modifier.adaptiveActionButtonWidth()) { Text(stringResource(R.string.action_open_media_folder)) }
+    Text(stringResource(R.string.home_note), style = MaterialTheme.typography.labelSmall)
 }

@@ -40,6 +40,7 @@ import de.eberhardt.unlockcapture.R
 import de.eberhardt.unlockcapture.browse.CapturedArtifact
 import de.eberhardt.unlockcapture.browse.MediaStoreBrowser
 import de.eberhardt.unlockcapture.integrity.IntegrityStore
+import de.eberhardt.unlockcapture.ui.components.adaptiveActionButtonWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,14 +100,14 @@ internal fun BrowseScreen(
 
     if (!canBrowse) {
         Text(stringResource(R.string.browse_need_permissions))
-        Button(onClick = onRequestPermissions, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onRequestPermissions, modifier = Modifier.adaptiveActionButtonWidth()) {
             Text(stringResource(R.string.action_grant_permissions))
         }
         return
     }
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = { refresh() }, modifier = Modifier.weight(1f)) {
+        Button(onClick = { refresh() }, modifier = Modifier.adaptiveActionButtonWidth()) {
             Text(if (loading) stringResource(R.string.loading_ellipsis) else stringResource(R.string.action_refresh))
         }
     }

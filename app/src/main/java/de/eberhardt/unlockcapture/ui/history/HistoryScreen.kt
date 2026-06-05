@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import de.eberhardt.unlockcapture.R
 import de.eberhardt.unlockcapture.audit.AuditLog
 import de.eberhardt.unlockcapture.audit.AuditLogVerification
+import de.eberhardt.unlockcapture.ui.components.adaptiveActionButtonWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,7 +62,7 @@ internal fun HistoryScreen() {
     LaunchedEffect(Unit) { refresh() }
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = { refresh() }, modifier = Modifier.weight(1f)) {
+        Button(onClick = { refresh() }, modifier = Modifier.adaptiveActionButtonWidth()) {
             Text(if (loading) stringResource(R.string.loading_ellipsis) else stringResource(R.string.action_refresh))
         }
     }
