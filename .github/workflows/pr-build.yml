@@ -31,7 +31,7 @@ jobs:
       - name: Install Android SDK packages
         shell: bash
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Run formatting check
         shell: bash
