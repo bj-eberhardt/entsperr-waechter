@@ -8,6 +8,10 @@
 
 Android-App für eigene Geräte zur transparenten Erfassung von Entsperrereignissen mit optionaler Frontkamera-Aufnahme.
 
+## Google Play
+
+[EntsperrWächter im Google Play Store](https://play.google.com/store/apps/details?id=de.eberhardt.unlockcapture)
+
 ## Tech-Stack
 
 - Android `minSdk 21`, `targetSdk 36`
@@ -46,6 +50,10 @@ Dazu ist eine Github Variable `PRIVACY_CONTACT_EMAIL` nötig.
 ![](assets/markting_banner_english_fit.png)
 
 Android app for your own devices to transparently capture unlock events with optional front camera recording.
+
+## Google Play
+
+[Unlock Capture on Google Play](https://play.google.com/store/apps/details?id=de.eberhardt.unlockcapture)
 
 ## Tech Stack
 
