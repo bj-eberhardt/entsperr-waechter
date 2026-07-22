@@ -3,6 +3,7 @@ package de.eberhardt.unlockcapture.admin
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.UserHandle
 import de.eberhardt.unlockcapture.events.UnlockEventHandler
 import de.eberhardt.unlockcapture.util.AppLog
 import de.eberhardt.unlockcapture.util.BroadcastAsync
@@ -30,6 +31,24 @@ class UnlockDeviceAdminReceiver : DeviceAdminReceiver() {
     ) {
         AppLog.i("Admin", "onDisabled()")
         super.onDisabled(context, intent)
+    }
+
+    override fun onPasswordFailed(
+        context: Context,
+        intent: Intent,
+        user: UserHandle,
+    ) {
+        AppLog.i("Admin", "onPasswordFailed extras=${intent.extras?.keySet()?.joinToString(",") ?: "-"}")
+        launchAsync { UnlockEventHandler(context).onPasswordFailed() }
+    }
+
+    override fun onPasswordSucceeded(
+        context: Context,
+        intent: Intent,
+        user: UserHandle,
+    ) {
+        AppLog.i("Admin", "onPasswordSucceeded extras=${intent.extras?.keySet()?.joinToString(",") ?: "-"}")
+        launchAsync { UnlockEventHandler(context).onPasswordSucceeded() }
     }
 
     @Suppress("DEPRECATION")

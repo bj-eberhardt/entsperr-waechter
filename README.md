@@ -10,7 +10,7 @@ Android-App für eigene Geräte zur transparenten Erfassung von Entsperrereignis
 
 ## Tech-Stack
 
-- Android `minSdk 21`, `targetSdk 35`
+- Android `minSdk 21`, `targetSdk 36`
 - Kotlin, Jetpack Compose, DataStore
 - Device Admin Receiver für Entsperr-Callbacks, sofern vom System unterstützt
 - CameraX im Foreground Service
@@ -49,7 +49,7 @@ Android app for your own devices to transparently capture unlock events with opt
 
 ## Tech Stack
 
-- Android `minSdk 21`, `targetSdk 35`
+- Android `minSdk 21`, `targetSdk 36`
 - Kotlin, Jetpack Compose, DataStore
 - Device Admin Receiver for unlock callbacks where supported by the system
 - CameraX in a foreground service

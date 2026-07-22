@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -15,12 +16,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "de.eberhardt.unlockcapture"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "de.eberhardt.unlockcapture"
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 10
         versionName = "0.5.5"
     }
@@ -28,10 +29,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -62,6 +59,12 @@ android {
                 "proguard-rules.pro",
             )
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
