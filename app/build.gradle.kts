@@ -22,8 +22,8 @@ android {
         applicationId = "de.eberhardt.unlockcapture"
         minSdk = 21
         targetSdk = 36
-        versionCode = 15
-        versionName = "0.5.10"
+        versionCode = 16
+        versionName = "0.5.11"
     }
 
     compileOptions {
